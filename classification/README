@@ -1,0 +1,51 @@
+MLEA TP 2 - d-hall_f
+
+Classification:
+
+make
+
+or:
+
+python classification.py <filename> <positive label> <data_size> [--noshow]
+
+Note: figures are generated, saved, then displayed.
+      to prevent pylab from displaying images, use --noshow
+      as the last parameter (all previous parameters are mandatory).
+
+
+Data sets:
+
+A] Donut:
+
+python donut.py <samples> <noise> <name> [--noshow]
+
+e.g.:
+	python donut.py 500 0.2 donut_noisy
+
+Note: See top of file to play with extra parameters
+
+B] Mushroom
+
+python mushroom.py <name> [--noshow]
+
+e.g.:
+	python mushroom.py mushroom_data
+
+C] Iris
+
+python iris.py <name> [--noshow]
+
+e.g.:
+	python iris.py iris_data
+
+
+D] Digits
+
+python optdigits.py <name> [--noshow]
+
+e.g.:
+	python optdigits.py optdigits_data_tes
+
+_tes: test data
+_tra: training data
+(in the original dataset)

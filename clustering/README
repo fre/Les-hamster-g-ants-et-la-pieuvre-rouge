@@ -1,0 +1,9 @@
+TP MLEA 2 - d-hall_f
+
+Program options:
+
+tiny_toy.py <filename> [--noshow]
+
+teddy_toy.py <filename> <dx> <dy> <distance> <size> <stddev> [--noshow]
+
+clustering.py <filename> <centroids> <data_size> <clustering_iters> [--noshow]

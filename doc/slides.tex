@@ -1,0 +1,332 @@
+%% report.tex
+%%
+%% TP MLEA - d-hall_f
+
+\documentclass[xcolor=dvipsnames]{beamer}
+
+\usepackage{beamerthemesplit}
+\usetheme{Warsaw}
+
+
+\mode<presentation>
+\usecolortheme{orchid}
+%\setbeamertemplate{navigation symbols}{} % vire la nav'barre
+
+\mode<presentation>
+% Change the default bottom line to include the page number.
+\defbeamertemplate*{footline}{infolines theme without institution}
+{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1.125ex,center]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\insertshortauthor
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.50\paperwidth,ht=2.25ex,dp=1.125ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}CSI Seminar 2009 - \insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1.125ex,right]{date in head/foot}%
+      \usebeamerfont{date in head/foot}%
+      % \insertshortdate{}\hspace*{2em}
+      \insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\mode
+<all>
+
+% Colors by Yabo :)
+\definecolor{dark-blue}{rgb}{0.254,0.274,0.545}
+\definecolor{vlblue}{rgb}{0.800,0.880,0.958}
+\definecolor{light-blue}{rgb}{0.670,0.780,0.898}
+\definecolor{mid-blue}{rgb}{0.458,0.521,0.717}
+\definecolor{lred}{rgb}{1,0.219,0.219}
+
+\definecolor{euyellow}{rgb}{0.8,0.75,0.1} % Definition of yellow color
+\definecolor{eublue}{rgb}{0.1,0.1,0.5} % Definition of blue color
+\definecolor{olrde-green}{rgb}{0.02,0.58,0.34}
+\definecolor{lrde-green}{rgb}{0.34,0.82,0.61}
+\definecolor{blrde-green}{rgb}{0.11, 0.32, 0.25}
+\definecolor{lgreen}{rgb}{0.68, 0.98, 0.78}
+\definecolor{black}{rgb}{0,0,0}
+
+\setbeamercolor{structure}{fg=dark-blue}
+
+% Main title-bar colors
+\setbeamercolor{palette primary}{fg=white,bg=mid-blue!100} % !<#> is transparency
+%\setbeamercolor{palette secondary}{fg=red!88,bg=green!20}
+\setbeamercolor{palette secondary}{fg=dark-blue,bg=light-blue}
+\setbeamercolor{palette tertiary}{fg=white,bg=eublue!90}
+\setbeamercolor{palette quaternary}{fg=white,bg=dark-blue}
+
+%\setbeamercolor{titlelike}{parent=palette quaternary}
+
+% Inner block colors
+\setbeamercolor{block title}{fg=eublue,bg=light-blue}
+
+
+\setbeamercolor{example text}{fg=eublue,bg=light-blue}
+
+\setbeamercolor{block title alerted}{use=alerted text,fg=eublue,bg=alerted text.fg!75!bg}
+\setbeamercolor{block title example}{use=example text,fg=white,bg=example text.fg!75!bg}
+
+%%\setbeamercolor{block body}{parent=normal text,use=block title,bg=block title.bg!25!bg}
+\setbeamercolor{block body}{bg=light-blue!30!}
+
+\setbeamercolor{block body alerted}{parent=normal text,use=block title alerted,bg=block title alerted.bg!25!bg}
+\setbeamercolor{block body example}{parent=normal text,use=block title example,bg=block title example.bg!25!bg}
+
+\setbeamercolor{sidebar}{bg=euyellow!70}
+
+\setbeamercolor{palette sidebar primary}{fg=eublue}
+\setbeamercolor{palette sidebar secondary}{fg=eublue!75}
+\setbeamercolor{palette sidebar tertiary}{fg=eublue!75}
+\setbeamercolor{palette sidebar quaternary}{fg=red}
+
+\setbeamercolor*{separation line}{}
+\setbeamercolor*{fine separation line}{}
+
+\setbeamercovered{dynamic}
+
+\mode
+<all>
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{floatflt}
+\usepackage{wrapfig}
+
+%\usepackage[dvips]{graphicx,color}
+%\usepackage[pdftex,colorlinks]{hyperref}
+%\usepackage{hyperref}
+
+\title{MLEA - TP 2}
+\author{Florent D'Halluin}
+\date{8 Juillet 2009}
+\institute{EPITA 2010}
+
+%%\AtBeginSubsection[]
+%%{
+%%  \begin{frame}<beamer>
+%%    \frametitle{Outline}
+%%    \tableofcontents[currentsection,currentsubsection]
+%%  \end{frame}
+%%}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Plan}
+  \tableofcontents
+\end{frame}
+
+\section{Classification}
+\subsection{Estimer l'efficacité d'un classifieur}
+\subsubsection{K-Fold cross-validation}
+\begin{frame}
+  \frametitle{K-Fold cross-validation}
+  \begin{itemize}
+    \item{Divise les données en $k$ sections}
+    \item{$k$ itérations}
+    \item{$k-1$ sections d'apprentissage}
+    \item{$1$ section de test}
+    \item{Résultat: moyenne des taux de reconnaissances et écart-type}
+    \item{Ici, $k = 10$}
+  \end{itemize}
+\end{frame}
+
+\subsubsection{Courbe ROC}
+\begin{frame}
+  \frametitle{Courbe ROC}
+  \begin{itemize}
+    \item{Se base sur le taux de certitude de chaque point reconnu}
+    \item{Fonction du taux de vrais positifs et de faux positifs}
+  \end{itemize}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=60mm]{../classification/donut_data_knns_0_roc}
+      \caption{Courbe ROC pour plusieurs classifieurs, sur donut.}
+      \label{fig:roc}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\subsection{Classification de données continues}
+\subsubsection{KNN}
+\begin{frame}
+  \frametitle{KNN}
+  \begin{itemize}
+    \item{On peut calculer la distance entre deux points du dataset}
+    \item{Trouver les K plus proches voisins}
+  \end{itemize}
+\end{frame}
+
+\subsubsection{Normal distribution}
+\begin{frame}
+  \frametitle{Normal distribution}
+  \begin{itemize}
+  \item{Modéliser les données d'apprentissage par une distribution
+    normale (moyenne, écart-type)}
+    \item{Maximiser la probabilité à postériori}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparaison}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../classification/optdigits_data_tra_pdf_200_kfcrossval}
+      \caption{Comparaison de classifieurs sur une partie du dataset optdigits
+        (training).}
+      \label{fig:pdf_optd_200}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\subsection{Classification de données discrètes}
+\subsubsection{Naïve Bayes classifier}
+\begin{frame}
+  \frametitle{Naïve Bayes classifier}
+  \begin{itemize}
+    \item{Données à caractéristiques indépendantes}
+    \item{Estimer certaines probabilités à partir des données
+      d'apprentissage ($P(C = c) et P(Xi = xi | C)$)}
+    \item{Maximiser $P(C = c|X = x)$}
+  \end{itemize}
+\end{frame}
+
+\subsubsection{Continuousification}
+\begin{frame}
+  \frametitle{Continuousification}
+  \begin{itemize}
+    \item{Rendre des données discrètes continues (pour utiliser KNN)}
+    \item{Conserver la dépendance entre les variables}
+    \item{Naïf: Une valeur arbitraire par valeur observée}
+    \item{NBF: Une dimension par valeur observée}
+    \item{VDM/MDV: Estimer et utiliser les probabilité conditionnelles}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparaison}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../classification/mushroom_data_cnt_100_kfcrossval}
+      \caption{Comparaison de classifieurs sur une partie du dataset mushroom.}
+      \label{fig:mushroom_data_cnt_100_kfcrossval}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\section{Clustering}
+\subsection{Estimer l'efficacité du clustering}
+\begin{frame}
+  \frametitle{Estimer l'efficacité du clustering}
+  \begin{itemize}
+    \item{Détecter la convergence vers un extrémum local}
+    \item{Somme des distances intra-cluster}
+    \item{Vitesse de convergence: nombre d'itérations}
+  \end{itemize}
+\end{frame}
+
+\subsection{Méthodes de clustering}
+\subsubsection{K-MEANS}
+\begin{frame}
+  \frametitle{K-MEANS}
+  \begin{itemize}
+    \item{Choisir $k$ centres au hasard}
+    \item{Calculer les clusters et les nouveaux centres}
+    \item{Itérer jusqu'à la convergence}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{K-MEANS - centres initiaux}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../clustering/teddy_toy_data_0_clustering_K-MEANS(16)_Start}
+      \caption{K-MEANS clustering sur le dataset teddy-toy, centres initiaux.}
+      \label{fig:teddy_toy_data_02}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\subsubsection{Distance maximale}
+\begin{frame}
+  \frametitle{Distance maximale}
+  \begin{itemize}
+    \item{Optimiser le choix des centres initiaux}
+    \item{Maximiser la distance avec les centres déjà choisis}
+    \item{Sensible au bruit}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Distance maximale - centres initiaux}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../clustering/teddy_toy_data_0_clustering_K-MEANSPP(16)_(max_distance)_Start}
+      \caption{K-MEANSPP (max distance) clustering sur le dataset teddy-toy, centres initiaux.}
+      \label{fig:teddy_toy_data_06}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\subsubsection{K-MEANS++}
+\begin{frame}
+  \frametitle{K-MEANS++}
+  \begin{itemize}
+    \item{Optimiser le choix des centres initiaux}
+    \item{Choisir en fonction de la distance aux centres déjà choisis}
+    \item{Résistant au bruit}
+    \item{Efficace}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{K-MEANS++ - centres initiaux}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../clustering/teddy_toy_data_0_clustering_K-MEANSPP(16)_Start}
+      \caption{K-MEANSPP clustering sur le dataset teddy-toy, centres initiaux.}
+      \label{fig:teddy_toy_data_03}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparaison - distances intra-cluster}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../clustering/teddy_toy_data_0_clustering_sumdst_10}
+      \caption{Somme des distances intra-cluster pour le dataset teddy-toy.}
+      \label{fig:teddy_toy_data_04}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparaison - nombre d'itération}
+  \begin{figure}[ht]
+    \begin{center}
+      \includegraphics[width=75mm]{../clustering/teddy_toy_data_0_clustering_sumit_10}
+      \caption{Nombre d'itérations pour le dataset teddy-toy.}
+      \label{fig:teddy_toy_data_05}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\section*{Questions}
+\begin{frame}
+  \frametitle{Questions}
+\end{frame}
+
+\end{document}

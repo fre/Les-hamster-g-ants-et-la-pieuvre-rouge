@@ -19,6 +19,7 @@ import kfcv
 import bayes
 import bayes_ndist
 import roc
+import id3
 
 filename = "mushroom_data"
 plabel = 'e'
@@ -156,6 +157,22 @@ def __work():
         data = data[0:data_size]
         labels = labels[0:data_size]
 
+    cls = [id3.ID3(),
+           knn.KNN(5, cache=knn.cache_5),
+           bayes_ndist.BAYES_NDIST(),
+           bayes.BAYES()]
+    names = ["ID3",
+             "KNN(5)\nNaive",
+             "Bayes\nNormal distribution",
+             "Naive\nBayes"]
+    in_data = [data,
+               data,
+               data,
+               data]
+
+    roc_results = []
+
+    test_kfcv_roc(in_data, labels, names, cls, "_id3", plabel)
 
     cls = [knn.KNN(1, cache=knn.cache_100),
            knn.KNN(3, cache=knn.cache_100),

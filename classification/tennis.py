@@ -1,4 +1,4 @@
-# mushroom.py - TP MLEA d-hall_f
+# tennis.py - TP MLEA d-hall_f
 #
 # See comments within the source code.
 
@@ -9,7 +9,7 @@ import sys
 import shuffle
 from matplotlib import pylab
 
-filename = "mushroom_data"
+filename = "tennis_data"
 
 noshow = 0  # Do not show the pylab window
 
@@ -19,20 +19,20 @@ if sys.argv[len(sys.argv) - 1] == '--noshow':
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
 
-def mushroom_dicts(filename):
+def tennis_dicts(filename):
     fh = open(filename, "r")
 
     count = 0
     dicts = []
-    for i in range(23):
+    for i in range(5):
 	dicts.append({})
 
     fl = fh.readlines()
     for line in fl:
         vals = line.split('\n')[0].rsplit(',')
-        if len(vals) != 23:
+        if len(vals) != 5:
             break
-        for i in range(23):
+        for i in range(5):
             if vals[i] in dicts[i]:
                 dicts[i][vals[i]] += 1
             else:
@@ -41,7 +41,7 @@ def mushroom_dicts(filename):
 
     return count, dicts
 
-def mushroom(filename, count, dicts, seed):
+def tennis(filename, count, dicts, seed):
     fh = open(filename, "r")
 
     data = []
@@ -50,17 +50,19 @@ def mushroom(filename, count, dicts, seed):
     fl = fh.readlines()
     for line in fl:
         vals = line.split('\n')[0].rsplit(',')
-        if len(vals) != 23:
+        if len(vals) != 5:
             break
         element = []
-        for i in range(22):
+        for i in range(4):
             v = 0
-            for k in dicts[i + 1].keys():
-                if vals[i + 1] == k:
+            keys = dicts[i].keys()
+            keys.sort()
+            for k in keys:
+                if vals[i] == k:
                     element.append(v)
                 v += 1
         data.append(element)
-        labels.append(vals[0])
+        labels.append(vals[4])
 
     shuffle.shuffle(data, labels, seed)
 
@@ -69,10 +71,10 @@ def mushroom(filename, count, dicts, seed):
 def __work():
     print "Reading", filename
 
-    count, dicts = mushroom_dicts(filename)
+    count, dicts = tennis_dicts(filename)
     seed = shuffle.generate_seed(count)
 
-    o = mushroom(filename, count, dicts, seed)
+    o = tennis(filename, count, dicts, seed)
     pickle.dump(o, open(filename + ".bin", "w"))
     print "Written", filename + ".bin"
 

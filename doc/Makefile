@@ -1,7 +1,6 @@
 all: figures report slides
 
 figures:
-	cd ../decision && make quiet
 	cd ../classification && make quiet
 	cd ../clustering && make quiet
 	cp "../clustering/teddy_toy_data_0_clustering_K-MEANSPP(16) (max distance)_Start.eps" "../clustering/teddy_toy_data_0_clustering_K-MEANSPP(16)_(max_distance)_Start.eps"

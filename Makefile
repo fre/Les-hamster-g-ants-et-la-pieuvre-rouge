@@ -1,11 +1,10 @@
 all:
-	make -C decision
+	make -C classification
 
 quiet:
-	make -C decision quiet
+	make -C classification quiet
 
 clean:
-	make -C decision clean
 	make -C classification clean
 	make -C clustering clean
 	make -C doc clean

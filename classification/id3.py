@@ -151,7 +151,7 @@ def __test():
     print "Built tree:"
     tr = 0
     if (filename == "tennis_data"):
-        tr == 1
+        tr = 1
     cl.print_tree(tr)
     print "Checking consistency..."
     lb = cl.process(data)

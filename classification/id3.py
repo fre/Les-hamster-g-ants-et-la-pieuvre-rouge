@@ -120,11 +120,41 @@ class ID3(object):
                          + self.__tr(l, tree.n, tr) + " >",
                          tr)
 
+    def __print_latex(self, tree, prefix, suffix, tr):
+        if tree.n == -1:
+            print prefix + "\\TR{" + tree.label + " (entropy: " \
+                + str(tree.etp) + ")}\\thput{" + suffix + "}"
+            return
+        print prefix + "\\pstree{\\TR{" \
+            + self.__tr(-1, tree.n, tr) \
+            + "? (entropy: " + str(tree.etp) + ", gain: " \
+            + str(tree.gain) + ")}\\thput{" + suffix + "}}"
+        print prefix + "{"
+        for l in tree.child.keys():
+            self.__print_latex(tree.child[l],
+                               prefix + "  ",
+                               self.__tr(l, tree.n, tr),
+                               tr)
+        print prefix + "}"
+
     def train(self, data, labels):
         self.tree = self.__split(data, labels)
 
     def print_tree(self, translate_names):
         self.__print(self.tree, "", translate_names)
+
+    def print_tree_latex(self, translate_names):
+        print "\\pstree[levelsep=20ex]{\\TR{" \
+            + self.__tr(-1, self.tree.n, translate_names) \
+            + "? (entropy: " + str(self.tree.etp) + ", gain: " \
+            + str(self.tree.gain) + ")}}"
+        print "{"
+        for l in self.tree.child.keys():
+            self.__print_latex(self.tree.child[l],
+                               "  ",
+                               self.__tr(l, self.tree.n, translate_names),
+                               translate_names)
+        print "}"
 
     def __find(self, tree, v):
         if tree.n == -1:
@@ -153,6 +183,10 @@ def __test():
     if (filename == "tennis_data"):
         tr = 1
     cl.print_tree(tr)
+    print "Latex source code:"
+    print "--------------------------------------------------------------"
+    cl.print_tree_latex(tr)
+    print "--------------------------------------------------------------"
     print "Checking consistency..."
     lb = cl.process(data)
     consistent = 1

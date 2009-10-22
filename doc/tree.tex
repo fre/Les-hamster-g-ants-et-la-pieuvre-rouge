@@ -1,0 +1,42 @@
+%% report.tex
+%%
+%% TP MLEA - d-hall_f
+
+\documentclass[pdftex]{article}
+
+\usepackage[dvips]{graphicx,color}
+\usepackage[pdftex,colorlinks]{hyperref}
+\usepackage[latin1]{inputenc}
+\usepackage{hyperref}
+\usepackage{pstricks,pstricks-add,pst-node,pst-tree}
+
+\sloppy
+
+\begin{document}
+
+\title{MLEA - Rapport de TP 2}
+\author{Florent D'Halluin}
+\date{18 Mai 2009}
+
+\maketitle
+
+\section*{Quickstart}
+
+\bigskip
+
+\pstree[levelsep=20ex]{\TR{Outlook? (entropy: 0.940285958671, gain: 0.246749819774)}}
+{
+  \TR{Yes (entropy: 0.0)}\thput{Overcast}
+  \pstree{\TR{Wind? (entropy: 0.970950594455, gain: 0.970950594455)}\thput{Rain}}
+  {
+    \TR{No (entropy: 0.0)}\thput{Strong}
+    \TR{Yes (entropy: 0.0)}\thput{Weak}
+  }
+  \pstree{\TR{Humidity? (entropy: 0.970950594455, gain: 0.970950594455)}\thput{Sunny}}
+  {
+    \TR{No (entropy: 0.0)}\thput{High}
+    \TR{Yes (entropy: 0.0)}\thput{Normal}
+  }
+}
+
+\end{document}

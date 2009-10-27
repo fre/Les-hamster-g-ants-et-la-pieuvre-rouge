@@ -157,15 +157,21 @@ def __work():
         data = data[0:data_size]
         labels = labels[0:data_size]
 
-    cls = [id3.ID3(),
+    cls = [id3.ID3(0, id3.gain),
+           id3.ID3(0, id3.gainratio),
+           id3.ID3(0, id3.gini),
            knn.KNN(5, cache=knn.cache_5),
            bayes_ndist.BAYES_NDIST(),
            bayes.BAYES()]
-    names = ["ID3",
+    names = ["ID3 Gain",
+             "ID3 Gain Ratio",
+             "ID3 Gini",
              "KNN(5)\nNaive",
              "Bayes\nNormal distribution",
              "Naive\nBayes"]
     in_data = [data,
+               data,
+               data,
                data,
                data,
                data]

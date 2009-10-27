@@ -45,6 +45,7 @@ def kfcrossval(k, l_classifiers, data, labels, results=None):
                 d = data[n]
                 training_data = numpy.concatenate((d[0:mini], d[maxi:]))
                 training_labels = numpy.concatenate((labels[0:mini],
+
                                                      labels[maxi:]))
                 test_data = d[mini:maxi]
                 test_labels = labels[mini:maxi]

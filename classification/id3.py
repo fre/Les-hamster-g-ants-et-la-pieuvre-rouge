@@ -11,8 +11,41 @@ import pickle
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
 
+def gain(dict, data, entro):
+    etp = 0.
+    for lbls in dict.iteritems():
+        norm = float(len(lbls[1])) / float(len(data))
+        etp += entropy(lbls[1]) * norm
+    gain = entro - etp
+    return gain
+
+def gainratio(dict, data, entro):
+    etp = 0.
+    splitinfo = 0.
+    for lbls in dict.iteritems():
+        norm = float(len(lbls[1])) / float(len(data))
+        etp += entropy(lbls[1]) * norm
+        splitinfo -= (math.log(norm, 2)) * norm
+    gain = entro - etp
+    gainratio = gain / splitinfo
+    return gainratio
+
+def gini(dict, data, entro):
+    etp = 1.
+    for lbls in dict.iteritems():
+        norm = float(len(lbls[1])) / float(len(data))
+        etp -= norm**2
+    return etp
+
 test = 0
-if sys.argv[len(sys.argv) - 1] == '--test':
+func = gain
+if sys.argv[-2] == '--gain':
+    func = gain
+if sys.argv[-2] == '--gainratio':
+    func = gainratio
+if sys.argv[- 2] == '--gini':
+    func = gini
+if sys.argv[-1] == '--test':
     test = 1
 
 def entropy(labels):
@@ -35,12 +68,14 @@ class Tree:
     def __init__(self):
         return
 
+
 #
 # ID3 class definition
 #
 class ID3(object):
-    def __init__(self, verbose = 0):
+    def __init__(self, verbose = 0, fentropy=gain):
         self.verbose = verbose
+        self.fentropy = fentropy
         self.tree = Tree()
         self.tree.etp = 0.
         self.tree.gain = -1.
@@ -75,16 +110,18 @@ class ID3(object):
                     d_dict[l] = [d]
                 i += 1
             etp = 0.
+            splitinfo = 0.
+            gimpurity = 1.
             if len(dict.keys()) <= 1:
                 continue
-            for lbls in dict.iteritems():
-                etp += entropy(lbls[1]) * len(lbls[1]) / len(data)
-            gain = result.etp - etp
+
+            gain = self.fentropy(dict, data, result.etp)
             if gain > result.gain:
                 best_dict = dict
                 best_d_dict = d_dict
                 result.gain = gain
                 result.n = n
+
         if result.n == -1:
             if self.verbose:
                 print "ID3.train: Training error (inconsistent data)."
@@ -176,7 +213,8 @@ class ID3(object):
 def __test():
     print "Testing ID3..."
     data, labels = pickle.load(open(filename + ".bin", "r"))
-    cl = ID3(1)
+    print func
+    cl = ID3(1, func)
     cl.train(data, labels)
     print "Built tree:"
     tr = 0

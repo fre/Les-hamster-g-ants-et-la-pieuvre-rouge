@@ -213,6 +213,10 @@ class ID3(object):
 def __test():
     print "Testing ID3..."
     data, labels = pickle.load(open(filename + ".bin", "r"))
+
+    dis = d.Discretize(data)
+    data = dis.ewd()
+
     print func
     cl = ID3(1, func)
     cl.train(data, labels)

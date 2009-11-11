@@ -20,6 +20,7 @@ import bayes
 import bayes_ndist
 import roc
 import id3
+import discretize
 
 filename = "mushroom_data"
 plabel = 'e'
@@ -169,9 +170,10 @@ def __work():
              "KNN(5)\nNaive",
              "Bayes\nNormal distribution",
              "Naive\nBayes"]
-    in_data = [data,
-               data,
-               data,
+
+    in_data = [discretize.Discretize().ewd(data),
+               discretize.Discretize().ewd(data),
+               discretize.Discretize().ewd(data),
                data,
                data,
                data]

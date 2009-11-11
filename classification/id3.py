@@ -146,6 +146,21 @@ class ID3(object):
             return str(n)
         return str(i)
 
+    def train(self, data, labels):
+        self.tree = self.__split(data, labels)
+        prior = {}
+        for l in labels:
+            if l in prior:
+                prior[l] += 1
+            else:
+                prior[l] = 1
+        max = 0
+        self.default_label = labels[0]
+        for k, p in prior.iteritems():
+            if p > max:
+                self.default_label = k
+                max = p
+
     def __print(self, tree, prefix, tr):
         if tree.n == -1:
             print prefix, tree.label
@@ -174,23 +189,32 @@ class ID3(object):
                                tr)
         print prefix + "}"
 
-    def train(self, data, labels):
-        self.tree = self.__split(data, labels)
-        prior = {}
-        for l in labels:
-            if l in prior:
-                prior[l] += 1
-            else:
-                prior[l] = 1
-        max = 0
-        self.default_label = labels[0]
-        for k, p in prior.iteritems():
-            if p > max:
-                self.default_label = k
-                max = p
+    def __print_dot(self, tree, tr, id):
+        id[0] += 1
+        num = id[0]
+        if tree.n == -1:
+            print str(num) + "[shape=ellipse, label=\"" + tree.label \
+                + "\\nEtp: " \
+                + ("%4.3f" % tree.etp) + "\"];"
+            return
+        print str(num) + "[label=\"" \
+            + self.__tr(-1, tree.n, tr) \
+            + "?\\nEtp: " + ("%4.3f" % tree.etp) + "\\nGain: " \
+            + ("%4.3f" % tree.gain) + "\"];"
+        for l in tree.child.keys():
+            numc = id[0] + 1
+            self.__print_dot(tree.child[l], tr, id)
+            print str(num) + "->" + str(numc) + "[label=\"" \
+                + self.__tr(l, tree.n, tr) + "\"];"
 
     def print_tree(self, translate_names):
         self.__print(self.tree, "", translate_names)
+
+    def print_tree_dot(self, translate_names):
+        print "digraph G {"
+        print "node[shape=box];"
+        self.__print_dot(self.tree, translate_names, [0])
+        print "}"
 
     def print_tree_latex(self, translate_names):
         print "\\pstree[levelsep=20ex]{\\TR{" \
@@ -237,9 +261,12 @@ def __test():
     if (filename == "tennis_data"):
         tr = 1
     cl.print_tree(tr)
-    print "Latex source code:"
+    print "Latex tree code:"
     print "--------------------------------------------------------------"
     cl.print_tree_latex(tr)
+    print "Dot tree code:"
+    print "--------------------------------------------------------------"
+    cl.print_tree_dot(tr)
     print "--------------------------------------------------------------"
     print "Checking consistency..."
     lb = cl.process(data)

@@ -73,9 +73,9 @@ def display(data, labels):
     ax.set_xticklabels(['1', '2', '3', '4'])
 
     pylab.legend(loc="upper right")
-    pylab.savefig(filename + ".pdf")
-    pylab.savefig(filename + ".eps")
-    pylab.savefig(filename + ".svg")
+    pylab.savefig("images/" + filename + ".pdf")
+    pylab.savefig("images/" + filename + ".eps")
+    pylab.savefig("images/" + filename + ".svg")
 
 def __work():
     print "Reading", filename

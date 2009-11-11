@@ -59,9 +59,9 @@ def display(data, labels):
         i = i + 1
     pylab.suptitle("Generated donut (samples=" + str(samples) + " noise=" + str(noise) + ")")
     pylab.axis([-max_xy - 1, max_xy + 1, -max_xy - 1, max_xy + 1])
-    pylab.savefig(filename + ".pdf")
-    pylab.savefig(filename + ".eps")
-    pylab.savefig(filename + ".svg")
+    pylab.savefig("images/" + filename + ".pdf")
+    pylab.savefig("images/" + filename + ".eps")
+    pylab.savefig("images/" + filename + ".svg")
 
 print "Generating " + filename + ", samples =", samples, " noise =", noise
 

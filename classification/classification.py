@@ -81,9 +81,9 @@ def __kfcrossval(data, labels, names, knns, suffix, results):
 
     ax.set_ylim((0.0, 1.0))
 
-    pylab.savefig(filename + suffix + "_kfcrossval" + ".pdf")
-    pylab.savefig(filename + suffix + "_kfcrossval" + ".eps")
-    pylab.savefig(filename + suffix + "_kfcrossval" + ".svg")
+    pylab.savefig("images/" + filename + suffix + "_kfcrossval" + ".pdf")
+    pylab.savefig("images/" + filename + suffix + "_kfcrossval" + ".eps")
+    pylab.savefig("images/" + filename + suffix + "_kfcrossval" + ".svg")
 
 def __roc(roc_results, labels, plabel, names, suffix):
     print "  - computing ROC graph and curves"
@@ -110,9 +110,9 @@ def __roc(roc_results, labels, plabel, names, suffix):
         title += ' [Data size = ' + str(data_size) + ']'
     ax.set_title(title)
 
-    pylab.savefig(filename + suffix + "_roc" + ".pdf")
-    pylab.savefig(filename + suffix + "_roc" + ".eps")
-    pylab.savefig(filename + suffix + "_roc" + ".svg")
+    pylab.savefig("images/" + filename + suffix + "_roc" + ".pdf")
+    pylab.savefig("images/" + filename + suffix + "_roc" + ".eps")
+    pylab.savefig("images/" + filename + suffix + "_roc" + ".svg")
 
     fig = pylab.figure()
     ax = fig.add_subplot(111)
@@ -132,9 +132,9 @@ def __roc(roc_results, labels, plabel, names, suffix):
         title += ' [Data size = ' + str(data_size) + ']'
     ax.set_title(title)
 
-    pylab.savefig(filename + suffix + "_roc_graph" + ".pdf")
-    pylab.savefig(filename + suffix + "_roc_graph" + ".eps")
-    pylab.savefig(filename + suffix + "_roc_graph" + ".svg")
+    pylab.savefig("images/" + filename + suffix + "_roc_graph" + ".pdf")
+    pylab.savefig("images/" + filename + suffix + "_roc_graph" + ".eps")
+    pylab.savefig("images/" + filename + suffix + "_roc_graph" + ".svg")
 
 def test_kfcv_roc(in_data, labels, names, cls, suffix, plabel):
     roc_results = []

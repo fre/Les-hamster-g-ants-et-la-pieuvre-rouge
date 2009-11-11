@@ -2,7 +2,10 @@ all: classification
 
 quiet: all
 
-classification: donut mushroom iris optdigits tennis
+images:
+	mkdir images
+
+classification: images donut mushroom iris optdigits tennis
 	./donut.sh
 	./iris.sh
 	./mushroom.sh
@@ -26,4 +29,4 @@ tennis:
 	python tennis.py tennis_data --noshow
 
 clean:
-	rm -rf *.bin *.eps *.svg *.pdf *.pyc
+	rm -rf *.bin *.eps *.svg *.pdf *.pyc images *.dot

@@ -7,6 +7,7 @@ import math
 import copy
 import sys
 import pickle
+import discretize
 
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
@@ -39,14 +40,26 @@ def gini(dict, data, entro):
 
 test = 0
 func = gain
-if sys.argv[-2] == '--gain':
-    func = gain
-if sys.argv[-2] == '--gainratio':
-    func = gainratio
-if sys.argv[- 2] == '--gini':
-    func = gini
-if sys.argv[-1] == '--test':
+discrf = discretize.Discretize.default
+arg = -1
+if sys.argv[arg] == '--test':
     test = 1
+    arg -= 1
+if sys.argv[arg] == '--gain':
+    func = gain
+    arg -= 1
+if sys.argv[arg] == '--gainratio':
+    func = gainratio
+    arg -= 1
+if sys.argv[arg] == '--gini':
+    func = gini
+    arg -= 1
+if sys.argv[arg] == '--ewd':
+    discrf = discretize.Discretize.ewd
+    arg -= 1
+if sys.argv[arg] == '--efd':
+    discrf = discretize.Discretize.efd
+    arg -= 1
 
 def entropy(labels):
     ld = {}
@@ -161,73 +174,76 @@ class ID3(object):
                 self.default_label = k
                 max = p
 
-    def __print(self, tree, prefix, tr):
+    def __print(self, fd, tree, prefix, tr):
         if tree.n == -1:
-            print prefix, tree.label
+            print >>fd, prefix, tree.label
             return
-        print prefix, "[Entropy:", tree.etp, "] [Gain: ", tree.gain, "]"
+        print >>fd, prefix, "[Entropy:", tree.etp, "] [Gain: ", tree.gain, "]"
         for l in tree.child.keys():
-            self.__print(tree.child[l],
+            self.__print(fd,
+                         tree.child[l],
                          prefix + " (" + self.__tr(-1, tree.n, tr) + ") "
                          + self.__tr(l, tree.n, tr) + " >",
                          tr)
 
-    def __print_latex(self, tree, prefix, suffix, tr):
+    def __print_latex(self, fd, tree, prefix, suffix, tr):
         if tree.n == -1:
-            print prefix + "\\TR{" + tree.label + " (entropy: " \
+            print >>fd, prefix + "\\TR{" + tree.label + " (entropy: " \
                 + str(tree.etp) + ")}\\thput{" + suffix + "}"
             return
-        print prefix + "\\pstree{\\TR{" \
+        print >>fd, prefix + "\\pstree{\\TR{" \
             + self.__tr(-1, tree.n, tr) \
             + "? (entropy: " + str(tree.etp) + ", gain: " \
             + str(tree.gain) + ")}\\thput{" + suffix + "}}"
-        print prefix + "{"
+        print >>fd, prefix + "{"
         for l in tree.child.keys():
-            self.__print_latex(tree.child[l],
+            self.__print_latex(fd,
+                               tree.child[l],
                                prefix + "  ",
                                self.__tr(l, tree.n, tr),
                                tr)
-        print prefix + "}"
+        print >>fd, prefix + "}"
 
-    def __print_dot(self, tree, tr, id):
+    def __print_dot(self, fd, tree, tr, id):
         id[0] += 1
         num = id[0]
         if tree.n == -1:
-            print str(num) + "[shape=ellipse, label=\"" + tree.label \
+            print >>fd, str(num) + "[shape=ellipse, label=\"" + tree.label \
                 + "\\nEtp: " \
                 + ("%4.3f" % tree.etp) + "\"];"
             return
-        print str(num) + "[label=\"" \
+        print >>fd, str(num) + "[label=\"" \
             + self.__tr(-1, tree.n, tr) \
             + "?\\nEtp: " + ("%4.3f" % tree.etp) + "\\nGain: " \
             + ("%4.3f" % tree.gain) + "\"];"
         for l in tree.child.keys():
             numc = id[0] + 1
-            self.__print_dot(tree.child[l], tr, id)
-            print str(num) + "->" + str(numc) + "[label=\"" \
+            self.__print_dot(fd, tree.child[l], tr, id)
+            print >>fd, str(num) + "->" + str(numc) + "[label=\"" \
                 + self.__tr(l, tree.n, tr) + "\"];"
 
-    def print_tree(self, translate_names):
-        self.__print(self.tree, "", translate_names)
+    def print_tree(self, fd, translate_names):
+        self.__print(fd, self.tree, "", translate_names)
 
-    def print_tree_dot(self, translate_names):
-        print "digraph G {"
-        print "node[shape=box];"
-        self.__print_dot(self.tree, translate_names, [0])
-        print "}"
+    def print_tree_dot(self, fd, translate_names):
+        print >>fd, "digraph G {"
+        print >>fd, "node[shape=box];"
+        self.__print_dot(fd, self.tree, translate_names, [0])
+        print >>fd, "}"
 
-    def print_tree_latex(self, translate_names):
-        print "\\pstree[levelsep=20ex]{\\TR{" \
+    def print_tree_latex(self, fd, translate_names):
+        print >>fd, "\\pstree[levelsep=20ex]{\\TR{" \
             + self.__tr(-1, self.tree.n, translate_names) \
             + "? (entropy: " + str(self.tree.etp) + ", gain: " \
             + str(self.tree.gain) + ")}}"
-        print "{"
+        print >>fd, "{"
         for l in self.tree.child.keys():
-            self.__print_latex(self.tree.child[l],
+            self.__print_latex(fd,
+                               self.tree.child[l],
                                "  ",
                                self.__tr(l, self.tree.n, translate_names),
                                translate_names)
-        print "}"
+        print >>fd, "}"
 
     def __find(self, tree, v):
         if tree.n == -1:
@@ -250,23 +266,24 @@ def __test():
     print "Testing ID3..."
     data, labels = pickle.load(open(filename + ".bin", "r"))
 
-    dis = d.Discretize(data)
-    data = dis.ewd()
+    data = discrf(discretize.Discretize(), data)
 
-    print func
     cl = ID3(1, func)
     cl.train(data, labels)
     print "Built tree:"
     tr = 0
     if (filename == "tennis_data"):
         tr = 1
-    cl.print_tree(tr)
+    fdout = open("/dev/stdout", "w")
+    fddot = open(filename + "_graph.dot", "w")
+    cl.print_tree(fdout, tr)
     print "Latex tree code:"
     print "--------------------------------------------------------------"
-    cl.print_tree_latex(tr)
+    cl.print_tree_latex(fdout, tr)
     print "Dot tree code:"
     print "--------------------------------------------------------------"
-    cl.print_tree_dot(tr)
+    cl.print_tree_dot(fdout, tr)
+    cl.print_tree_dot(fddot, tr)
     print "--------------------------------------------------------------"
     print "Checking consistency..."
     lb = cl.process(data)

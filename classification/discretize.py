@@ -134,15 +134,3 @@ class Discretize(object):
         d1 = dt[0:200]
         d2 = dt[201:400]
         self.__split(d1)
-
-def __test():
-    print "Testing ID3..."
-    data, labels = pickle.load(open(filename + ".bin", "r"))
-
-    dis = Discretize()
-    d = dis.ewd(data)
-    print d
-
-if test:
-    __test()
-

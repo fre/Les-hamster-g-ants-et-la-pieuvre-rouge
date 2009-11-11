@@ -176,6 +176,18 @@ class ID3(object):
 
     def train(self, data, labels):
         self.tree = self.__split(data, labels)
+        prior = {}
+        for l in labels:
+            if l in prior:
+                prior[l] += 1
+            else:
+                prior[l] = 1
+        max = 0
+        self.default_label = labels[0]
+        for k, p in prior.iteritems():
+            if p > max:
+                self.default_label = k
+                max = p
 
     def print_tree(self, translate_names):
         self.__print(self.tree, "", translate_names)
@@ -199,7 +211,7 @@ class ID3(object):
         else:
             if v[tree.n] in tree.child:
                 return self.__find(tree.child[v[tree.n]], v)
-        return ""
+        return self.default_label
 
     def process(self, data):
         result = []

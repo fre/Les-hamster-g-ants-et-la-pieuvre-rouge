@@ -10,7 +10,7 @@ classification: donut mushroom iris optdigits tennis
 	./tennis.sh
 
 donut:
-	python donut.py donut_data 2000 0.1 --noshow
+	python donut.py donut_data 1000 0.0 --noshow
 
 iris:
 	python iris.py iris_data --noshow

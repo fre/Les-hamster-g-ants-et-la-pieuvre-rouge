@@ -49,3 +49,12 @@ e.g.:
 _tes: test data
 _tra: training data
 (in the original dataset)
+
+
+python svm.py <data_set> <Kernel> <polynomial value> <test>
+<Kernel> = '--linear_k' or '--poly_k'
+<polynomial value> pow of kernel polynomial (only with '--poly_k' option
+
+EXEMPLE:
+python svm.py donut_data --poly_k 7 --test
+python svm.py donut_data --linear_k --test

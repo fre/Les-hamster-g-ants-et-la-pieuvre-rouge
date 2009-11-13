@@ -5,18 +5,26 @@ quiet: all
 images:
 	mkdir images
 
-classification: images donut mushroom iris optdigits tennis
+classification: images donut mushroom iris optdigits tennis krkopt glass
 	./donut.sh
 	./iris.sh
 	./mushroom.sh
 	./optdigits.sh
 	./tennis.sh
+	./krkopt.sh
+	./glass.sh
 
 donut:
 	python donut.py donut_data 1000 0.0 --noshow
 
 iris:
 	python iris.py iris_data --noshow
+
+krkopt:
+	python krkopt.py krkopt_data --noshow
+
+glass:
+	python glass.py glass_data --noshow
 
 mushroom:
 	python mushroom.py mushroom_data --noshow

@@ -8,6 +8,7 @@ import copy
 import sys
 import pickle
 import discretize
+import os
 
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
@@ -16,7 +17,7 @@ def gain(dict, data, entro):
     etp = 0.
     for lbls in dict.iteritems():
         norm = float(len(lbls[1])) / float(len(data))
-        etp += entropy(lbls[1]) * norm
+        etp += entropy(lbls[1])[0] * norm
     gain = entro - etp
     return gain
 
@@ -25,7 +26,7 @@ def gainratio(dict, data, entro):
     splitinfo = 0.
     for lbls in dict.iteritems():
         norm = float(len(lbls[1])) / float(len(data))
-        etp += entropy(lbls[1]) * norm
+        etp += entropy(lbls[1])[0] * norm
         splitinfo -= (math.log(norm, 2)) * norm
     gain = entro - etp
     gainratio = gain / splitinfo
@@ -75,7 +76,7 @@ def entropy(labels):
     for v in ld.iteritems():
         pi = v[1] / sz
         result += - (pi * math.log(pi, 2))
-    return result
+    return result, ld
 
 class Tree:
     def __init__(self):
@@ -86,7 +87,7 @@ class Tree:
 # ID3 class definition
 #
 class ID3(object):
-    def __init__(self, verbose = 0, fentropy=gain):
+    def __init__(self, verbose = 0, fentropy=gain, attr_names=[]):
         self.verbose = verbose
         self.fentropy = fentropy
         self.tree = Tree()
@@ -94,21 +95,31 @@ class ID3(object):
         self.tree.gain = -1.
         self.tree.n = -1
         self.tree.child = {}
+        self.tree.label_counts = {}
         self.tree.label = ""
+        self.attr_names = attr_names
         return
 
     def __split(self, data, labels):
         result = Tree()
-        result.etp = entropy(labels) # try not to recompute
+        result.etp, result.label_counts = entropy(labels)
         result.gain = -1.
         result.n = -1
         result.child = {}
-        result.label = ""
         best_dict = {}
         best_d_dict = {}
+        result.label = labels[0]
+
         if len(data) == 1 or result.etp == 0.:
-            result.label = labels[0]
             return result
+
+        # Compute default label (the most present)
+        max = 0
+        for k, p in result.label_counts.iteritems():
+            if p > max:
+                result.label = k
+                max = p
+
         for n in range(len(data[0])):
             dict = {}
             d_dict = {}
@@ -136,22 +147,14 @@ class ID3(object):
                 result.n = n
 
         if result.n == -1:
-            if self.verbose:
-                print "ID3.train: Training error (inconsistent data)."
-                print data
-                print labels
-            result.label = labels[len(labels) - 1] # Inconsistent data?
+            # Inconsistent data
             return result
         for l in best_dict.keys():
             result.child[l] = self.__split(best_d_dict[l], best_dict[l])
         return result
 
     def __tr(self, i, n, tr):
-        d = []
-        d.append({-1:"Outlook", 0:"Overcast", 1:"Rain", 2:"Sunny"})
-        d.append({-1:"Temperature", 0:"Cool", 1:"Hot", 2:"Mild"})
-        d.append({-1:"Humidity", 0:"High", 1:"Normal"})
-        d.append({-1:"Wind", 0:"Strong", 1:"Weak"})
+        d = self.attr_names
         if tr and len(d) > n:
             if i in d[n]:
                 return d[n][i]
@@ -161,18 +164,6 @@ class ID3(object):
 
     def train(self, data, labels):
         self.tree = self.__split(data, labels)
-        prior = {}
-        for l in labels:
-            if l in prior:
-                prior[l] += 1
-            else:
-                prior[l] = 1
-        max = 0
-        self.default_label = labels[0]
-        for k, p in prior.iteritems():
-            if p > max:
-                self.default_label = k
-                max = p
 
     def __print(self, fd, tree, prefix, tr):
         if tree.n == -1:
@@ -251,7 +242,8 @@ class ID3(object):
         else:
             if v[tree.n] in tree.child:
                 return self.__find(tree.child[v[tree.n]], v)
-        return self.default_label
+            else:
+                return tree.label
 
     def process(self, data):
         result = []
@@ -262,17 +254,36 @@ class ID3(object):
 
         return result
 
+def load_names(filename):
+    res = []
+    if not os.path.exists(filename):
+        return res
+    fh = open(filename, "r")
+    fl = fh.readlines()
+    for line in fl:
+        res.append({-1:line.split('\n')[0]})
+    return res
+
 def __test():
     print "Testing ID3..."
     data, labels = pickle.load(open(filename + ".bin", "r"))
 
+    names = []
+    if filename == "tennis_data":
+        names.append({-1:"Outlook", 0:"Overcast", 1:"Rain", 2:"Sunny"})
+        names.append({-1:"Temperature", 0:"Cool", 1:"Hot", 2:"Mild"})
+        names.append({-1:"Humidity", 0:"High", 1:"Normal"})
+        names.append({-1:"Wind", 0:"Strong", 1:"Weak"})
+    else:
+        names = load_names(filename + ".names")
+
     data = discrf(discretize.Discretize(), data)
 
-    cl = ID3(1, func)
+    cl = ID3(1, func, names)
     cl.train(data, labels)
     print "Built tree:"
     tr = 0
-    if (filename == "tennis_data"):
+    if (names != []):
         tr = 1
     fdout = open("/dev/stdout", "w")
     fddot = open(filename + "_graph.dot", "w")

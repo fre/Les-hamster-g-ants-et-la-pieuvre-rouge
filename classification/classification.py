@@ -171,9 +171,9 @@ def __work():
              "Bayes\nNormal distribution",
              "Naive\nBayes"]
 
-    in_data = [discretize.Discretize().ewd(data),
-               discretize.Discretize().ewd(data),
-               discretize.Discretize().ewd(data),
+    in_data = [data,
+               data,
+               data,
                data,
                data,
                data]
@@ -181,6 +181,30 @@ def __work():
     roc_results = []
 
     test_kfcv_roc(in_data, labels, names, cls, "_id3", plabel)
+
+    cls = [id3.ID3(0, id3.gain),
+           id3.ID3(0, id3.gain),
+           id3.ID3(0, id3.gainratio),
+           id3.ID3(0, id3.gainratio),
+           id3.ID3(0, id3.gini),
+           id3.ID3(0, id3.gini)]
+    names = ["ID3 Gain\nEWD",
+             "ID3 Gain\nEFD",
+             "ID3 Gain ratio\nEWD",
+             "ID3 Gain ratio\nEFD",
+             "ID3 Gini\nEWD",
+             "ID3 Gini\nEFD"]
+
+    in_data = [discretize.Discretize().ewd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().ewd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().ewd(data),
+               discretize.Discretize().efd(data)]
+
+    roc_results = []
+
+    test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete", plabel)
 
     cls = [knn.KNN(1, cache=knn.cache_100),
            knn.KNN(3, cache=knn.cache_100),

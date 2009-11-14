@@ -27,8 +27,8 @@ def polynomial_k(x, y):
     return val
 
 def rbf_k(x, y):
-    m = numpy.linalg.norm(numpy.power((x - y), 2))
-    val = numpy.exp(-1 * m * float(p_value))
+    m = x - y
+    val = numpy.exp(-1 * numpy.dot(m, m) * float(p_value))
     return val
 
 test = 0
@@ -134,24 +134,40 @@ class SVM(object):
         alpha = [(int(al[i]), i)  for i in xrange(0, len(al)) if al[i] <> 0]
         return alpha
 
-    def print_2Ddecision(self, data, lab, bounds, print_sv=True, print_non_sv=False):
-        i = 0
+    def print_2Ddecision(self, bounds, print_sv=True, print_non_sv=False):
+        def get_grid(step):
+            step *= 10;
+            grid = [];
+            for i in xrange (-100., 100., step):
+                for j in xrange (-100., 100., step):
+                    grid.append([i/10., j/10.]);
+            return grid;
+
+
+        step = .5
+        data = get_grid(step)
+        deci = self.decision(data)
+
         pylab.figure()
 
-        for i in xrange(0, len(lab)):
-            if lab[i] >= 0:
-                pylab.scatter(data[i][0], data[i][1], c="r", marker='o')
-            else:
-                pylab.scatter(data[i][0], data[i][1], c="b", marker='o')
+        # number of row and line
+        row = 20 / step;
+        # Transform the array into matrix
+        mat = numpy.reshape(numpy.array(deci), (row, row));
+
+        im = pylab.imshow(mat, extent=[-10,10,-10,10])
+
+        pylab.colorbar(im)
+        pylab.axis("off")
 
         X = []
         Y = []
         for a in self.alpha:
-            X.append(data[a[1]][0])
-            Y.append(data[a[1]][1])
-            pylab.scatter(X, Y, s=200, c="r", marker='o')
+            X.append(self.data[a[1]][0])
+            Y.append(self.data[a[1]][1])
+            pylab.scatter(X, Y, s=100, c="r", marker='o')
 
-        pylab.axis([-max_xy - 1, max_xy + 1, -max_xy - 1, max_xy + 1])
+#         pylab.axis([-max_xy - 1, max_xy + 1, -max_xy - 1, max_xy + 1])
         pylab.savefig(filename + ".pdf")
         pylab.savefig(filename + ".eps")
         pylab.savefig(filename + ".svg")
@@ -174,8 +190,8 @@ def __test():
 
     svm = SVM();
     svm.train(data, l)
-    lab = svm.process(data)
+#     lab = svm.process(data)
 
-    svm.print_2Ddecision(data, lab, 1)
+    svm.print_2Ddecision(1)
 if test:
     __test()

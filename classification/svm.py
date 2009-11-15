@@ -18,46 +18,64 @@ max_xy = 10 # Max spread
 if len(sys.argv) >= 2:
     filename = sys.argv[1]
 
-def linear_k(x, y):
+def linear_k(x, y, p_value):
     val = numpy.sum(numpy.dot(x,y), dtype=float) + 1
     return val
 
-def polynomial_k(x, y):
+def polynomial_k(x, y, p_value):
     val = numpy.power((numpy.sum(numpy.dot(x,y), dtype=float) + 1), int(p_value))
     return val
 
-def rbf_k(x, y):
+def rbf_k(x, y, p_value):
     m = x - y
     val = numpy.exp(-1 * numpy.dot(m, m) * float(p_value))
     return val
 
 test = 0
 p_value = 1
+kernel = rbf_k
 if sys.argv[-1] == '--test':
     test = 1
-if sys.argv[-3] == '--poly_k':
-    kernel = polynomial_k
-    p_value = sys.argv[-2]
-if sys.argv[-3] == '--rbf_k':
-    kernel = rbf_k
-    p_value = sys.argv[-2]
-if sys.argv[-2] == '--linear_k':
-    kernel = linear_k
+    if len(sys.argv) >= 5:
+        if sys.argv[-3] == '--poly_k':
+            kernel = polynomial_k
+            p_value = sys.argv[-2]
+        if sys.argv[-3] == '--rbf_k':
+            kernel = rbf_k
+            p_value = sys.argv[-2]
+    if len(sys.argv) >= 4:
+        if sys.argv[-2] == '--linear_k':
+            kernel = linear_k
 
 
 class SVM(object):
-    def __init__(self):
+    def __init__(self, kernel = rbf_k, p_value = 0.05):
         self.kernel = kernel
         self.alpha = []
         self.bias = 0.
         self.weight = 0.
-
+        self.p_value = p_value
 
     def train(self, data, labels):
         self.data = data
-        self.labels = labels
-        self.alpha = self.lagrange_coeffs(data, labels)
-        self.bias = self.bias_get(data, labels)
+        l_map = {}
+        self.labels = []
+        i = -1.
+        for l in labels:
+            if l in l_map:
+                self.labels.append(l_map[l])
+            else:
+                if i == 3:
+                    print "Training error: dataset contains more"\
+                        "than two classes."
+                l_map[l] = i
+                self.labels.append(i)
+                i = i + 2
+        self.label_map = {-1.: '', 1.: ''}
+        for l, v in l_map.iteritems():
+            self.label_map[v] = l
+        self.alpha = self.lagrange_coeffs(data, self.labels)
+        self.bias = self.bias_get(data, self.labels)
 
     # Get weight vector
     def __weight(self, data, labels):
@@ -72,7 +90,8 @@ class SVM(object):
         for d in data:
             w = 0.
             for i in xrange(0, len(self.alpha)):
-                w += self.alpha[i][0] * self.labels[self.alpha[i][1]] * self.kernel(self.data[self.alpha[i][1]], d)
+                w += self.alpha[i][0] * self.labels[self.alpha[i][1]] \
+                    * self.kernel(self.data[self.alpha[i][1]], d, self.p_value)
             deci.append(w)
         return deci
 
@@ -83,9 +102,9 @@ class SVM(object):
 
         for d in deci:
             if d >= 0:
-                new_lab.append(1)
+                new_lab.append((self.label_map[1], min(1., 1. - d)))
             else:
-                new_lab.append(-1)
+                new_lab.append((self.label_map[-1], max(0., d - 1.)))
         return new_lab
 
     # get bias of svm (page 12-14)
@@ -109,7 +128,7 @@ class SVM(object):
         for i in xrange(0, n):
             for j in xrange(i, n):
                 # (see Annexe page 3 formula 8)
-                val = l[i] * l[j] * self.kernel(data[i], data[j])
+                val = l[i] * l[j] * self.kernel(data[i], data[j], self.p_value)
                 P[i, j] = val
                 P[j, i] = val
         return P
@@ -125,7 +144,7 @@ class SVM(object):
         # Constraint value for Sum(alpha_i*label_i)=0
         b = numpy.zeros(1)
         # Constraite propriety Sum(alpha_i*label_i)=0
-        A = matrix(labels, (1,n))
+        A = matrix(labels, (1, n))
         r = qp(matrix(P), matrix(q), matrix(G), matrix(h), A, matrix(b))
         # Get alpha vector
         al = numpy.array(r['x'])
@@ -178,18 +197,12 @@ def __test():
     print "Testing SVM..."
     data, labels = pickle.load(open(filename + ".bin", "r"))
 
-    l = []
-    for i in xrange(0, len(labels)):
-        if labels[i] == 'outside':
-            l.append(1.)
-        else:
-            l.append(-1.)
 # Tiny probleme
 #     d = numpy.array([[1], [2], [3]])
 #     l = [-1.0, 1.0, 1.0]
 
-    svm = SVM();
-    svm.train(data, l)
+    svm = SVM(kernel, p_value);
+    svm.train(data, labels)
 #     lab = svm.process(data)
 
     svm.print_2Ddecision(1)

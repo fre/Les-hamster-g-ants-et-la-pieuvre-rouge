@@ -29,12 +29,14 @@ class Discretize(object):
         size = self.data.shape[0]
         # Huntsberger
         nb += (math.log(size, 10)) * 3.3
-        for i in xrange(1, int(nb)):
-            if (size % i == 0):
-                nbc = i
-        if nbc == 1:
-            return int(nb)
-        return nbc
+        return nb
+# Ca fait bugger ca non ?
+#         for i in xrange(1, int(nb)):
+#             if (size % i == 0):
+#                 nbc = i
+#         if nbc == 1:
+#             return int(nb)
+#         return nbc
 
     # sort a dimension
     def __sort_dim(self, n_dim):

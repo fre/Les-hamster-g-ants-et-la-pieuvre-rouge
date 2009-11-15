@@ -20,6 +20,7 @@ import bayes
 import bayes_ndist
 import roc
 import id3
+import svm
 import discretize
 
 filename = "mushroom_data"
@@ -157,6 +158,27 @@ def __work():
         print "Reducing data size to", data_size
         data = data[0:data_size]
         labels = labels[0:data_size]
+
+    cls = [id3.ID3(0, id3.gain),
+           svm.SVM(),
+           knn.KNN(5, cache=knn.cache_5),
+           bayes_ndist.BAYES_NDIST(),
+           bayes.BAYES()]
+    names = ["ID3 Gain",
+             "SVM",
+             "KNN(5)\nNaive",
+             "Bayes\nNormal distribution",
+             "Naive\nBayes"]
+
+    in_data = [data,
+               data,
+               data,
+               data,
+               data]
+
+    roc_results = []
+
+    test_kfcv_roc(in_data, labels, names, cls, "_2_class_discrete", plabel)
 
     cls = [id3.ID3(0, id3.gain),
            id3.ID3(0, id3.gainratio),

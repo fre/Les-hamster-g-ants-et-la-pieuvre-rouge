@@ -28,7 +28,13 @@ def polynomial_k(x, y, p_value):
 
 def rbf_k(x, y, p_value):
     m = x - y
-    val = numpy.exp(-1 * numpy.dot(m, m) * float(p_value))
+    val = numpy.exp(-1 * numpy.dot(m, m) / float(p_value))
+    return val
+
+def norm_k(x, y):
+    x = numpy.array(x)
+    y = numpy.array(y)
+    val = kernel(x, y) / numpy.sqrt(kernel(x, x) * kernel(y, y))
     return val
 
 test = 0
@@ -90,7 +96,7 @@ class SVM(object):
         for d in data:
             w = 0.
             for i in xrange(0, len(self.alpha)):
-                w += self.alpha[i][0] * self.labels[self.alpha[i][1]] \
+              w += self.alpha[i][0] * self.labels[self.alpha[i][1]] \
                     * self.kernel(self.data[self.alpha[i][1]], d, self.p_value)
             deci.append(w)
         return deci
@@ -109,17 +115,13 @@ class SVM(object):
 
     # get bias of svm (page 12-14)
     def bias_get(self, data, labels):
-#         self.weight = self.__weight(data, labels)
+        self.weight = self.__weight(data, labels)
 
-#         b = 0.
-#         for i in xrange(0, len(self.alpha)):
-# #             for j in xrange(0, len(self.alpha)):
-# #                 k = self.kernel(data[self.alpha[i][1]], data[self.alpha[j][1]])
-# #                 print k, self.weight
-#             b += (labels[self.alpha[i][1]] - self.kernel(self.weight, data[self.alpha[i][1]]))
+        b = 0.
+        for i in xrange(0, len(self.alpha)):
+            b += (labels[self.alpha[i][1]] - norm_k(self.weight, data[self.alpha[i][1]]))
 
-#         return b / len(self.alpha)
-        return
+        return b / len(self.alpha)
 
     # Get the matrice P for the solver
     def __get_quad(self, data, n, l):
@@ -160,8 +162,7 @@ class SVM(object):
             for i in xrange (-100., 100., step):
                 for j in xrange (-100., 100., step):
                     grid.append([i/10., j/10.]);
-            return grid;
-
+            return grid
 
         step = .5
         data = get_grid(step)
@@ -174,22 +175,31 @@ class SVM(object):
         # Transform the array into matrix
         mat = numpy.reshape(numpy.array(deci), (row, row));
 
-        im = pylab.imshow(mat, extent=[-10,10,-10,10])
+        im = pylab.imshow(mat, extent=[bounds[0], bounds[1], bounds[2], bounds[3]])
 
         pylab.colorbar(im)
         pylab.axis("off")
 
-        X = []
-        Y = []
-        for a in self.alpha:
-            X.append(self.data[a[1]][0])
-            Y.append(self.data[a[1]][1])
+        if (print_sv):
+            X = []
+            Y = []
+            for a in self.alpha:
+                X.append(self.data[a[1]][0])
+                Y.append(self.data[a[1]][1])
             pylab.scatter(X, Y, s=100, c="r", marker='o')
 
-#         pylab.axis([-max_xy - 1, max_xy + 1, -max_xy - 1, max_xy + 1])
-        pylab.savefig(filename + ".pdf")
-        pylab.savefig(filename + ".eps")
-        pylab.savefig(filename + ".svg")
+        if (kernel == linear_k):
+            pylab.savefig(filename + "_linear_s" + str(len(self.alpha)) + ".pdf")
+            pylab.savefig(filename + "_linear_s" + str(len(self.alpha)) + ".eps")
+            pylab.savefig(filename + "_linear_s" + str(len(self.alpha)) + ".svg")
+        elif (kernel == polynomial_k):
+            pylab.savefig(filename + "_p" + p_value + "_s" + str(len(self.alpha)) + ".pdf")
+            pylab.savefig(filename + "_p" + p_value + "_s" + str(len(self.alpha)) + ".eps")
+            pylab.savefig(filename + "_p" + p_value + "_s" + str(len(self.alpha)) + ".svg")
+        elif (kernel == rbf_k):
+            pylab.savefig(filename + "_g" + p_value + "_s" + str(len(self.alpha)) + ".pdf")
+            pylab.savefig(filename + "_g" + p_value + "_s" + str(len(self.alpha)) + ".eps")
+            pylab.savefig(filename + "_g" + p_value + "_s" + str(len(self.alpha)) + ".svg")
 
         return
 
@@ -205,6 +215,6 @@ def __test():
     svm.train(data, labels)
 #     lab = svm.process(data)
 
-    svm.print_2Ddecision(1)
+    svm.print_2Ddecision([-10, 10, -10, 10])
 if test:
     __test()

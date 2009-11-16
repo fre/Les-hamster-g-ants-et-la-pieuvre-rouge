@@ -17,7 +17,7 @@ max_xy = 10 # Max spread
 
 samples = 1000 # Number of samples
 noise = 0.1    # Noise factor
-
+separated = 0
 noshow = 0  # Do not show the pylab window
 
 # Argument processing
@@ -31,21 +31,32 @@ if len(sys.argv) >= 4:
     samples = int(sys.argv[2])
     noise = float(sys.argv[3])
 
+arg = 1
+while arg + 1 < len(sys.argv):
+    if sys.argv[-arg] == '--separated':
+        separated = 1
+    arg += 1
+
 # Donut creation
 def donut_toy(n, noise):
     data = numpy.empty((n, 2))
     labels = []
     for i in range(n):
-        x = (numpy.random.random_sample() - 0.5) * max_xy * 2
-        y = (numpy.random.random_sample() - 0.5) * max_xy * 2
-        data[i] = [x, y]
-        r = math.sqrt(x * x + y * y)
-        noise_test = numpy.random.random_sample()
-        if ((noise_test < noise) and (r < r1 or r > r2))             \
-           or (not (noise_test < noise) and not (r < r1 or r > r2)):
-            labels.append("inside")
-        else:
-            labels.append("outside")
+        done = 0
+        while not done:
+            x = (numpy.random.random_sample() - 0.5) * max_xy * 2
+            y = (numpy.random.random_sample() - 0.5) * max_xy * 2
+            data[i] = [x, y]
+            r = math.sqrt(x * x + y * y)
+            if (separated and (abs(r - r1) < max_xy / 20. or abs(r - r2) < max_xy / 20.)):
+                continue;
+            done = 1
+            noise_test = numpy.random.random_sample()
+            if ((noise_test < noise) and (r < r1 or r > r2))             \
+                    or (not (noise_test < noise) and not (r < r1 or r > r2)):
+                labels.append("inside")
+            else:
+                labels.append("outside")
     return data, labels
 
 def display(data, labels):

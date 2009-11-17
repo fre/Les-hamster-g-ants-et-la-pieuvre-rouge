@@ -38,13 +38,13 @@ def linear_toy(n, noise):
     for i in range(n):
         x = (numpy.random.random_sample() - 0.5) * max_xy * 2
         y = (numpy.random.random_sample() - 0.5) * max_xy * 2
-        while (abs(x - y) < max_xy / 10):
+        while (abs(x) < max_xy / 10):
             x = (numpy.random.random_sample() - 0.5) * max_xy * 2
             y = (numpy.random.random_sample() - 0.5) * max_xy * 2
         data[i] = [x, y]
         noise_test = numpy.random.random_sample()
-        if ((noise_test < noise) and (x > y)) \
-           or (not (noise_test < noise) and not (x > y)):
+        if ((noise_test < noise) and (x > 0)) \
+           or (not (noise_test < noise) and not (x > 0)):
             labels.append("inside")
         else:
             labels.append("outside")

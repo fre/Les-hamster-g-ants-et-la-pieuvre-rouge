@@ -40,26 +40,25 @@ def gini(dict, data, entro):
     return etp
 
 test = 0
+prune = 0
 func = gain
 discrf = discretize.Discretize.default
 arg = -1
-if sys.argv[arg] == '--test':
-    test = 1
-    arg -= 1
-if sys.argv[arg] == '--gain':
-    func = gain
-    arg -= 1
-if sys.argv[arg] == '--gainratio':
-    func = gainratio
-    arg -= 1
-if sys.argv[arg] == '--gini':
-    func = gini
-    arg -= 1
-if sys.argv[arg] == '--ewd':
-    discrf = discretize.Discretize.ewd
-    arg -= 1
-if sys.argv[arg] == '--efd':
-    discrf = discretize.Discretize.efd
+while -arg < len(sys.argv):
+    if sys.argv[arg] == '--test':
+        test = 1
+    if sys.argv[arg] == '--gain':
+        func = gain
+    if sys.argv[arg] == '--gainratio':
+        func = gainratio
+    if sys.argv[arg] == '--gini':
+        func = gini
+    if sys.argv[arg] == '--ewd':
+        discrf = discretize.Discretize.ewd
+    if sys.argv[arg] == '--efd':
+        discrf = discretize.Discretize.efd
+    if sys.argv[arg] == '--prune':
+        prune = 1
     arg -= 1
 
 def entropy(labels):
@@ -87,7 +86,7 @@ class Tree:
 # ID3 class definition
 #
 class ID3(object):
-    def __init__(self, verbose = 0, fentropy=gain, attr_names=[]):
+    def __init__(self, verbose = 0, fentropy=gain, prune=0, attr_names=[]):
         self.verbose = verbose
         self.fentropy = fentropy
         self.tree = Tree()
@@ -97,8 +96,16 @@ class ID3(object):
         self.tree.child = {}
         self.tree.label_counts = {}
         self.tree.label = ""
+        self.tree.plabel = 1.
         self.attr_names = attr_names
+        self.prune = prune
         return
+
+    def tree_size(self, tree):
+        size = 0
+        for v, c in tree.child.iteritems():
+            size += self.tree_size(c)
+        return size + 1
 
     def __split(self, data, labels):
         result = Tree()
@@ -109,6 +116,7 @@ class ID3(object):
         best_dict = {}
         best_d_dict = {}
         result.label = labels[0]
+        result.plabel = 1.
 
         if len(data) == 1 or result.etp == 0.:
             return result
@@ -118,6 +126,7 @@ class ID3(object):
         for k, p in result.label_counts.iteritems():
             if p > max:
                 result.label = k
+                result.plabel = p / float(len(labels))
                 max = p
 
         for n in range(len(data[0])):
@@ -162,8 +171,65 @@ class ID3(object):
             return str(n)
         return str(i)
 
+    # REP pruning
+    def __prune(self, tree, data, labels):
+        def eval_error(tree):
+            error = 0.
+            i = 0
+            for v in data:
+                lc, lp = self.__find(tree, v)
+                if lc != labels[i]:
+                    error += 1.
+                i += 1
+            return error
+
+        # Evaluate the error on all tree obtained by pruning one node
+        # the root tree.
+        def recurse(node, candidate_tree, candidate_error):
+            if node.n == -1:
+                return
+            else:
+                child = node.child
+                n = node.n
+                node.n = -1
+                node.child = {}
+                error = eval_error(tree)
+                if error <= candidate_error[0]:
+                    candidate_error[0] = error
+                    candidate_tree[0] = copy.deepcopy(tree)
+                node.n = n
+                node.child = child
+                for v, c in node.child.iteritems():
+                    recurse(c, candidate_tree, candidate_error)
+
+        error = eval_error(tree)
+        candidate_tree = [tree]
+        candidate_error = [error]
+        iter = 0
+        while (candidate_error[0] <= error):
+            error = candidate_error[0]
+#             print "Iteration " + str(iter)
+#             print "Error: " + str(candidate_error[0])
+#             print "Candidate: " + str(candidate_tree[0])
+            recurse(tree, candidate_tree, candidate_error)
+            if (tree != candidate_tree[0]):
+                tree = candidate_tree[0]
+            else:
+                break
+            iter += 1
+
+        return candidate_tree[0]
+
     def train(self, data, labels):
-        self.tree = self.__split(data, labels)
+        if prune == 0 or len(labels) < 12:
+            self.tree = self.__split(data, labels)
+        else:
+            # 25% of the labels go for pruning.
+            size = len(labels)
+            prune_index = len(data) * 1 / 4
+            tmax = self.__split(data[0:prune_index], labels[0:prune_index])
+            self.tree = self.__prune(tmax, data[prune_index + 1: size - 1],
+                                     labels[prune_index + 1: size - 1])
 
     def __print(self, fd, tree, prefix, tr):
         if tree.n == -1:
@@ -218,6 +284,8 @@ class ID3(object):
 
     def print_tree_dot(self, fd, translate_names):
         print >>fd, "digraph G {"
+        print >>fd, "label=\"Decision tree for " + filename \
+            + "\\nTree size = " + str(self.tree_size(self.tree)) + "\";"
         print >>fd, "node[shape=box];"
         self.__print_dot(fd, self.tree, translate_names, [0])
         print >>fd, "}"
@@ -238,18 +306,18 @@ class ID3(object):
 
     def __find(self, tree, v):
         if tree.n == -1:
-            return tree.label
+            return (tree.label, tree.plabel)
         else:
             if v[tree.n] in tree.child:
                 return self.__find(tree.child[v[tree.n]], v)
             else:
-                return tree.label
+                return (tree.label, tree.plabel)
 
     def process(self, data):
         result = []
         i = 0
         for v in data:
-            result.append((self.__find(self.tree, v), 1))
+            result.append(self.__find(self.tree, v))
             i += 1
 
         return result
@@ -279,7 +347,7 @@ def __test():
 
     data = discrf(discretize.Discretize(), data)
 
-    cl = ID3(1, func, names)
+    cl = ID3(1, func, prune, names)
     cl.train(data, labels)
     print "Built tree:"
     tr = 0
@@ -306,10 +374,8 @@ def __test():
         print "* Passed"
     else:
         print "* Failed"
-        print "  Original labels:"
-        print labels
-        print "  Classification results:"
-        print lb
+
+    print cl.tree_size(cl.tree)
 
 if test:
     __test()

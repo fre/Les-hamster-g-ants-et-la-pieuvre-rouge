@@ -15,7 +15,7 @@
 
 \title{MLEA - Rapport de TP 2}
 \author{Florent D'Halluin\and Hervé Cuche}
-\date{11 Novembre 2009}
+\date{14 Novembre 2009}
 
 \maketitle
 
@@ -30,572 +30,349 @@ Parcours de correction rapide et efficace:
   géneration des images en arrière-plan --- peut prendre 2 heures).}
 \item{Lecture du rapport.}
 \item{\emph{Optionnel: Ctrl-c le make (les images les plus
-    significatives sont générées en premier dans classification).}}
+    significatives sont générées en premier dans}
+    \verb-classification/images-\emph{).}}
 \item{Jeter un oeil aux images générées, tester quelques commandes.}
 \item{Noter.}
 \end{itemize}
+
+\bigskip
+
+\emph{Note: L'architecture des fichiers rendus a été reprise des TPs de
+MLEA1 (Florent D'Halluin).  Elle comprend tout le travail effectué
+jusqu'ici.}
 
 \section{ID3}
 
 \verb+cd classification+.
 \verb-make- (génère les images pour toutes les sous-sections).
 
-\subsection{Toy Problem: PlayTennis}
+\subsection{Notes sur l'implémentation}
 
-ON UTILISE LES PROBAS A PRIORI DANS ID3!!!!!!!!!11!!
+\bigskip
 
-\verb-make mushroom-
-\verb-python classification.py-
+Test ID3:
+\begin{verbatim}
+make <Dataset>
+python id3.py <Dataset>_data [<Discretization>] [<Gain>] [--prune] --test
+dot -Tpdf <Dataset>_data_graph.dot -o <Dataset>_data_id3_graph.pdf
+display <Dataset>_data_id3_graph.pdf
+\end{verbatim}
+
+\bigskip
+
+Classification:
+\begin{verbatim}
+make <Dataset>
+python classification.py <Dataset>_data <Positive label> <Data Size>
+\end{verbatim}
+\emph{Note: \'Etant donné le grand nombre de tests possibles, choisir
+  les tests désirés en modifiant classification.py (fin du fichier).}
+
+\bigskip
+
+Datasets:
+\begin{verbatim}
+donut
+donut_simple
+linear
+tennis
+glass
+iris
+optdigits_tes
+optdigits_tra
+krkopt
+\end{verbatim}
+
+\bigskip
+
+Discretization:
+\begin{verbatim}
+--efd
+--ewd
+\end{verbatim}
+
+Gain:
+\begin{verbatim}
+--gain
+--gainratio
+--gini
+\end{verbatim}
 
 \bigskip
 
 Fichiers:
 
 \begin{itemize}
-\item{\verb-mushroom_data-: Dataset.}
-\item{\verb-mushroom.py-: Extraction du dataset (ordre aléatoire).}
-\item{\verb-bayes.py-: Naive Bayes Classifier.}
+\item{\verb-<Dataset>_data-: Dataset.}
+\item{\verb-<Dataset>.py-: Extraction du dataset.}
+\item{\verb-id3.py-: Implémentation de ID3.}
 \item{\verb-kfcv.py-: K-Fold Cross-Validation.}
 \item{\verb-classification.py-: Tests et génération des courbes.}
+\item{\verb-discretization.py-: Méthodes de discrétisation.}
 \end{itemize}
 
-\subsubsection{K-Fold Cross-Validation}
-Emplacement: \verb+kfcrossval()+ dans \verb+kfcv.py+.
-
 \bigskip
 
-\emph{Le code a été repris du TP 1.}
+L'implémentation est basée sur les notes de cours.
+Pour chaque noeud de l'arbre, on conserve les probabilités à
+priori des éléments qui se retrouvent dans les fils, ce qui permet
+d'assigner un label par défaut aux éléments pour lesquels on n'arrive
+pas à descendre jusqu'à une feuille.
 
-\bigskip
+Lors de l'apprentissage, la profondeur de l'arbre n'augmente plus
+lorsque l'entropie atteint 0 pour un noeud donné, ni lorsque tous les
+éléments sont identiques (même si l'entropie n'est pas nulle).  Ces
+deux limites sont adoptées par tous les algorithmes qu'on a pu voir
+dans la littérature.
 
-Un nombre arbitraire de sections (paramètre k) sont extraites des
-données fournies.  Chaque section sert une fois de données de tests,
-les autres étant utilisées pour l'apprentissage.  Au bout des k
-itérations, les moyennes des taux de reconnaissances et les
-écarts-types sont calculés pour chaque classifieur, puis retournés.
-
-Si le paramètre \verb-results- est fourni, tous les résultats (classe
-reconnue et probabilité de certitude) y sont
-stockés afin d'être interprétés par les fonctions de construction de
-courbes ROC.
-
-\subsubsection{Naive Bayes Classifier}
-Emplacement: \verb+class BAYES+ dans \verb+bayes.py+.
-
-\bigskip
-
-Lors de l'entrainement les valeurs lues pour chaque caractéristique
-sont stockées dans des dictionnaires (un par caractéristique
-observée).  L'ensemble des dictionnaires est ensuite parcouru pour
-associer à chaque valeur rencontrée sa probabilité d'apparition par
-rapport aux autres valeurs de la même caractéristique.
-
-Lors de la reconnaissance, les probabilités d'apparition de la valeur
-de chaque caractéristique sont multipliées entre-elles puis par la
-probabilité d'apparition de la classe considérée.  Pour chaque point à
-traiter, la classe ayant la probabilité d'apparition maximale est
-renvoyée.
-
-Sur le dataset mushroom, le Naive Bayes Classifier a un taux de
-reconnaissance excellent (de même que les autres classifieurs ---
-\autoref{fig:mushroom_data_cnt_0_kfcrossval}).
-Lorsque les tests sont effectués sur 2\% seulement du dataset,
-les performances restent bonnes (\autoref{fig:mushroom_data_cnt_100_kfcrossval}).  On peut noter que ce classifieur
-est bien plus rapide que KNN (sans partitionnement, KNN est
-de complexité quadratique par rapport au nombre de points ; Bayes est
-de complexité linéaire).
+\subsubsection{PlayTennis}
 
 \begin{figure}[ht]
   \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_0_kfcrossval}
-  \caption{Comparaison de classifieurs sur le dataset mushroom.}
-  \label{fig:mushroom_data_cnt_0_kfcrossval}
+  \includegraphics[width=120mm]{tennis_data_id3_graph}
+  \caption{Arbre de décision pour le dataset PlayTennis (ID3).}
+  \label{fig:tennis_data_id3_graph}
+  \end{center}
+\end{figure}
+
+\autoref{fig:tennis_data_id3_graph} montre l'arbre obtenu pour le
+dataset PlayTennis.  Le dataset étant simple, l'arbre de décision a
+peu de noeuds.
+
+\cleardoublepage
+
+\subsubsection{Mushroom}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_id3_graph}
+  \caption{Arbre de décision pour le dataset Mushroom (ID3).}
+  \label{fig:mushroom_data_id3_graph}
+  \end{center}
+\end{figure}
+
+\autoref{fig:mushroom_data_id3_graph} montre l'arbre obtenu pour le
+dataset Mushroom.  L'arbre induit reste simple (29 noeuds), alors que
+le dataset a une taille importante (8000 points).  De plus, toutes les
+feuilles ont une entropie de 0, ce qui suggère que l'arbre aura de
+bonnes performances (par exemple sur une K-Fold cross validation).
+\autoref{fig:mushroom_data_id3_500_kfcrossval} et
+\autoref{fig:mushroom_data_id3_0_kfcrossval} illustrent ce dernier point:
+l'arbre de décision obtenu pour id3 a des performances similaires à
+KNN (en pratique, l'algorithme est également plus rapide).
+
+\cleardoublepage
+
+\subsection{Améliorations}
+
+\subsubsection{Sélection de l'attribut à tester}
+
+Les deux expressions alternatives du gain ont été implémentées
+(GainRatio et impureté de Gini).
+\autoref{fig:tennis_data_id3_gainratio_graph} et
+\autoref{fig:tennis_data_id3_gini_graph} sont à comparer à
+\autoref{fig:tennis_data_id3_graph} (dataset Tennis).
+\autoref{fig:mushroom_data_id3_gainratio_graph} et
+\autoref{fig:mushroom_data_id3_gini_graph} sont à comparer à
+\autoref{fig:mushroom_data_id3_graph} (dataset Mushroom).  On observe
+des arbres de tailles similaires pour les méthodes Gain et GainRatio,
+alors que la méthode Gini produit des arbres avec un nombre de noeuds
+plus important \autoref{tbl:id3_node_count}.
+En outre, les taux de reconnaissance sont meilleurs
+avec les méthodes Gain et GainRatio qu'avec Gini
+(\autoref{fig:mushroom_data_id3_500_kfcrossval} sur une partie du dataset
+Mushroom et \autoref{fig:mushroom_data_id3_0_kfcrossval} sur
+l'ensemble du dataset).
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{tennis_data_id3_gainratio_graph}
+  \caption{Arbre de décision pour le dataset Tennis (ID3, GainRatio).}
+  \label{fig:tennis_data_id3_gainratio_graph}
   \end{center}
 \end{figure}
 
 \begin{figure}[ht]
   \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_100_kfcrossval}
-  \caption{Comparaison de classifieurs sur une partie du dataset mushroom.}
-  \label{fig:mushroom_data_cnt_100_kfcrossval}
+  \includegraphics[width=120mm]{tennis_data_id3_gini_graph}
+  \caption{Arbre de décision pour le dataset Tennis (ID3, Gini).}
+  \label{fig:tennis_data_id3_gini_graph}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_id3_gainratio_graph}
+  \caption{Arbre de décision pour le dataset Mushroom (ID3, GainRatio).}
+  \label{fig:mushroom_data_id3_gainratio_graph}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_id3_gini_graph}
+  \caption{Arbre de décision pour le dataset Mushroom (ID3, Gini).}
+  \label{fig:mushroom_data_id3_gini_graph}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_id3_500_kfcrossval}
+  \caption{Taux de reconnaissance sur K-Fold validation (ID3, Extrait
+    du dataset Mushroom).}
+  \label{fig:mushroom_data_id3_500_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_id3_0_kfcrossval}
+  \caption{Taux de reconnaissance sur K-Fold validation (ID3, dataset
+    Mushroom).}
+  \label{fig:mushroom_data_id3_0_kfcrossval}
   \end{center}
 \end{figure}
 
 \cleardoublepage
 
-\subsection{ROC}
+\subsubsection{Gestion des attributs continus}
 
-\verb-make mushroom-
-\verb-python classification.py-
+Pour gérer les attributs continus, les méthodes EFD et EWD ont été
+implémentées.  En pratique, elles ont des résultats similaires
+\autoref{fig:glass_data_id3_discrete_0_kfcrossval}.  Les
+tests ont étés effectués sur le dataset Donut (1000 points, 2
+attributs, 2 classes, 10\% de bruit), ainsi que sur le
+dataset Glass (214 points, 6 attributs, 7 classes)
+\autoref{fig:glass_data_id3_efd_graph} illustre le dataset Glass à travers
+l'arbre induit par ID3 sur le dataset discrétisé par EFD.
 
-\bigskip
-
-Fichiers:
-
-\begin{itemize}
-\item{\verb-roc.py-: Génération des graphes ROC et des courbes ROC.}
-\end{itemize}
-
-Emplacement: \verb+roc()+ dans \verb+roc.py+.
-
-\bigskip
-
-La génération des graphes et courbes ROC se déroulent en 2 étapes:
-
-\begin{itemize}
-\item{Traitement des résultats}
-\item{Génération des points de courbe ROC}
-\end{itemize}
-
-Le traitement des résultats (première boucle \verb-for-) a pour but
-d'ordonner les résultats par taux de certitude décroissant pour la
-classe positive (paramêtre \verb-plabel-).  Pour les KNN, le taux de
-certitude correspond au nombre de voisins de la classe positive par
-rapport à K, d'o\`u l'aspect haché des courbes de ROC (un point
-par valeur distincte du taux de certitude).
-
-La génération des points de courbe ROC se fait en suivant l'algorithme 1
-décrit dans le dossier \emph{Introduction to ROC analysis}, mentionné
-sur la ML.
-
-Les graphes et courbes ROC ne sont disponibles que lorsqu'une classe
-``positive'' est identifiable (i.e. pour donut et mushroom).
-Plusieurs exemples de graphe et courbes sont inclus dans ce rapport
-(\autoref{fig:mushroom_data_cnt_100_roc_graph},
-\autoref{fig:mushroom_data_cnt_100_roc},
-\autoref{fig:donut_data_knns_0_roc}).
+\autoref{fig:glass_data_id3_discrete_knn_0_kfcrossval} et
+\autoref{fig:donut_data_id3_discrete_knn_0_kfcrossval} illustrent
+l'utilité de la discrétisation sur des datasets à valeurs continues:
+l'arbre induit par ID3 n'est efficace que lorsque les données sont
+discrétisées et atteint la même précision que KNN.  On note également
+que KNN est moins efficaces sur les données discrétisées que sur les
+données continues, ce qui n'est pas surprenant.
 
 \begin{figure}[ht]
   \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_100_roc_graph}
-  \caption{Graphe ROC pour plusieurs classifieurs, sur une partie du
-    dataset mushroom.}
-  \label{fig:mushroom_data_cnt_100_roc_graph}
+  \includegraphics[width=120mm]{glass_data_id3_efd_graph}
+  \caption{Arbre de décision pour le dataset Glass (ID3,
+    discrétisation EFD).}
+  \label{fig:glass_data_id3_efd_graph}
   \end{center}
 \end{figure}
 
 \begin{figure}[ht]
   \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_100_roc}
-  \caption{Courbe ROC pour plusieurs classifieurs, sur une partie du
-    dataset mushroom.}
-  \label{fig:mushroom_data_cnt_100_roc}
+  \includegraphics[width=120mm]{glass_data_id3_discrete_0_kfcrossval}
+  \caption{Comparaison des méthodes de discrétidsation (K-Fold
+    validation, ID3, dataset Glass + discrétisation).}
+  \label{fig:glass_data_id3_discrete_0_kfcrossval}
   \end{center}
 \end{figure}
 
 \begin{figure}[ht]
   \begin{center}
-  \includegraphics[width=120mm]{../classification/donut_data_knns_0_roc}
-  \caption{Courbe ROC pour plusieurs classifieurs, sur une partie du
-    dataset donut.}
-  \label{fig:donut_data_knns_0_roc}
+  \includegraphics[width=120mm]{glass_data_id3_discrete_knn_0_kfcrossval}
+  \caption{Taux de reconnaissance sur K-Fold validation (ID3, dataset
+    Glass + discrétisation).}
+  \label{fig:glass_data_id3_discrete_knn_0_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_data_id3_discrete_knn_0_kfcrossval}
+  \caption{Taux de reconnaissance sur K-Fold validation (ID3, dataset
+    Donut + discrétisation).}
+  \label{fig:donut_data_id3_discrete_knn_0_kfcrossval}
   \end{center}
 \end{figure}
 
 \cleardoublepage
 
-\subsection{Continuousification}
+\subsubsection{\'Elagage}
 
-\verb-make mushroom-
-\verb-python classification.py-
+La méthode d'élagage REP a été implémentée depuis le papier listé sur
+le sujet et quelques recherches dans la littérature.  Lors de
+l'apprentissage, 25\% des données sont mises à part pour l'élagage
+(pruning set).  L'élagage se fait par itérations successives afin
+d'obtenir l'arbre minimum qui a l'erreur minimale sur le pruning set.
+\autoref{fig:mushroom_data_id3_gainratio_pruned_graph} illustre le
+pruning sur un arbre de petite taille:  l'entropie en feuille devient
+parfois non nulle (par rapport à l'arbre
+\autoref{fig:mushroom_data_id3_gainratio_graph}) parce que le pruning
+set ne représente pas toutes les données d'apprentissage.
 
-\bigskip
-
-Fichiers:
-
-\begin{itemize}
-\item{\verb-knn_nbf.py-: Continuousification NBF.}
-\item{\verb-knn_vdm.py-: Continuousification VDM.}
-\item{\verb-knn_mdv.py-: Continuousification MDV.}
-\end{itemize}
-
-\bigskip
-
-\subsubsection{Continuousification NBF}
-
-Emplacement: \verb+class KNN_NBF+ dans \verb+knn_nbf.py+.
-
-\bigskip
-
-Comme pour les autres méthodes de continuousification, la classe
-\verb-KNN_NBF- est un simple wrapper autour de la classe \verb-KNN-.
-Elle se charge de réécrire les données d'entrée de \verb-train()- et
-\verb-process()- sous la forme correspondante à la méthode de
-continuousification choisie. Les données de sortie sont ensuite
-traitées par un KNN générique.
-
-\bigskip
-
-Pour la continuousification NBF, pendant l'entrainement, chaque valeur
-distincte de chaque attribut des données d'entrée engendre l'ajout
-d'une dimension aux données de sortie.  Pour chaque point, la valeur
-de sortie est 1 pour les dimensions dont la valeur associée est
-observée dans les données d'entrée, 0 sinon.
-L'implémentation est faite à l'aide de dictionnaires.
-
-\subsubsection{Continuousification VDM}
-
-Emplacement: \verb+class KNN_VDM+ dans \verb+knn_vdm.py+.
-
-\bigskip
-
-La méthode de continuousification VDM est implémentée à partie de la
-publication \emph{Transformations of Symbolic Data for Continuous Data
-Oriented Models} citée sur la ML.  Elle n'a pas posé de problèmes.
-
-\subsubsection{Continuousification MDV}
-
-Emplacement: \verb+class KNN_MDV+ dans \verb+knn_mdv.py+.
-
-\bigskip
-
-La méthode de continuousification MDV est implémentée à partie de la
-publication \emph{Transformations of Symbolic Data for Continuous Data
-Oriented Models} citée sur la ML.  Elle est similaire à
-l'implémentation VDM.
-
-\subsubsection{Comparaison}
-
-Le dataset \verb-mushroom- est très simple, et les taux de
-classification excellents, même sur une faible partie du dataset
-(\autoref{fig:mushroom_data_cnt_500_kfcrossval},
-\autoref{fig:mushroom_data_cnt_500_roc},
-\autoref{fig:mushroom_data_cnt_500_roc_graph}).
-Sur 2\% du dataset, VDM est la meilleure méthode
-(\autoref{fig:mushroom_data_cnt_100_kfcrossval}).
-Lorsque les données sont continues (e.g. sur \verb-donut-), la
-continuousification est
-évidemment inefficace (\autoref{fig:donut_data_cnt_0_kfcrossval}).
+\autoref{tbl:id3_node_count} donne la taille de l'arbre obtenu après
+élagage pour différents datasets.  On observe un gain proportionnel
+au rapport de la taille de l'arbre sur la taille du dataset.  Lorsque
+l'arbre est très petit par rapport au dataset (e.g. Mushroom avec Gain
+et GainRatio), l'effet de l'élagage est difficile à évaluer.
 
 \begin{figure}[ht]
   \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_500_kfcrossval}
-  \caption{Continuousificaion sur une partie du dataset mushroom.}
-  \label{fig:mushroom_data_cnt_500_kfcrossval}
+  \includegraphics[width=120mm]{mushroom_data_id3_gainratio_pruned_graph}
+  \caption{Arbre de décision élagué pour le dataset Mushroom (ID3,
+    GainRatio, REP).}
+  \label{fig:mushroom_data_id3_gainratio_pruned_graph}
   \end{center}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{table}
   \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_500_roc}
-  \caption{Continuousificaion sur une partie du dataset mushroom (courbe ROC).}
-  \label{fig:mushroom_data_cnt_500_roc}
+  \begin{tabular}{ | c | c | c | c | c | c |}
+    \hline
+    Dataset & Taille & Gain & Complet & REP & Taux d'élagage \\ \hline \hline
+    Mushroom & 8124 & Gain & 29 & 26 & 10\% \\ \hline
+    Mushroom & 8124 & GainRatio & 26 & 23 & 12\% \\ \hline
+    Mushroom & 8124 &Gini & 467 & 320 & 31\% \\ \hline
+    Glass (EFD) & 214 & Gain & 38 & 15 & 61\% \\ \hline
+    Glass (EFD) & 214 & GainRatio & 38 & 15 & 61\% \\ \hline
+    Glass (EFD) & 214 & Gini & 38 & 17 & 55\% \\ \hline
+    Donut (EFD) & 2000 & Gain & 145 & 130 & 10\% \\ \hline
+    Donut (EFD) & 2000 & GainRatio & 145 & 130 & 10\% \\ \hline
+    Donut (EFD) & 2000 &Gini & 145 & 130 & 10\% \\ \hline
+  \end{tabular}
   \end{center}
-\end{figure}
+  \caption{Taille de l'arbre induit selon plusieurs variantes de ID3
+    (dataset Mushroom).}
+  \label{tbl:id3_node_count}
+\end{table}
 
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../classification/mushroom_data_cnt_500_roc_graph}
-  \caption{Continuousificaion sur une partie du dataset
-    mushroom (graphe ROC).}
-  \label{fig:mushroom_data_cnt_500_roc_graph}
-  \end{center}
-\end{figure}
+FIXME: KFCV sur les arbres élagués
 
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../classification/donut_data_cnt_0_kfcrossval}
-  \caption{Continuousificaion sur le dataset donut.}
-  \label{fig:donut_data_cnt_0_kfcrossval}
-  \end{center}
-\end{figure}
+\section{SVM}
 
-\cleardoublepage
+\subsection{Very tiny toy}
+FIXME: Explications + réponses
 
-\section{Clustering}
+\subsection{2D tiny toy}
+FIXME: Explications (dataset linear) + Images + kfcv
 
-\verb+cd clustering+.
-\verb-make- (génère les images pour toutes les sous-sections).
+\subsection{Kernels}
 
-\bigskip
+FIXME: Explications + plein d'images de fonction de décision + kfcv
 
-Fichiers:
+\subsection{Noise}
 
-\begin{itemize}
-\item{\verb-k_means.py-: K-MEANS.}
-\item{\verb-k_means_pp.py-: K-MEANS++.}
-\item{\verb-clustering.py-: Test functions, funky verbose.}
-\item{\verb-tiny_toy.py-: Dataset tiny-toy.}
-\item{\verb-teddy_toy.py-: Dataset teddy-toy.}
-\end{itemize}
+Le SVM implémenté ne gère pas le bruit.
+FIXME: Afficher une fonction de décision, kernel RBF qui va bien.
 
-\subsection{Tiny toy}
+\subsection{Multiclass Management}
 
-Emplacement: \verb+class KMEANS+ dans \verb+k_means.py+.
+Ce point n'a pas été implémenté.
 
-\bigskip
+\subsection{Unbalanced Dataset}
 
-L'implémentation du K-MEANS est faite telle que décrite dans la
-littérature.  Les résultats de toutes les itérations sont retournés
-afin de pouvoir en extraire l'avancement du clustering à chaque
-itération.
+Ce point n'a pas été implémenté.
 
-\bigskip
+\section{Final benchmarking}
 
-Le déroulement de K-MEANS sur tiny-toy est simple et rapide
-(\autoref{fig:tiny_toy_data_0_clustering_K-MEANS(2)_Start} et
-  \autoref{fig:tiny_toy_data_0_clustering_K-MEANS(2)_End}).
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/tiny_toy_data_0_clustering_K-MEANS(2)_Start}
-  \caption{Clustering sur tiny-toy (première itération).}
-  \label{fig:tiny_toy_data_0_clustering_K-MEANS(2)_Start}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/tiny_toy_data_0_clustering_K-MEANS(2)_End}
-  \caption{Clustering sur tiny-toy (dernière itération).}
-  \label{fig:tiny_toy_data_0_clustering_K-MEANS(2)_End}
-  \end{center}
-\end{figure}
-
-\subsection{Teddy toy}
-
-Emplacement: \verb+gen_grid_normal_dataset()+ dans
-\verb+teddy_toy.py+.
-
-\bigskip
-
-Le code est simple.  \autoref{fig:teddy_toy_data} et
-\autoref{fig:teddy_toy_small_data} montrent deux exemples de
-grilles générées.
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data}
-  \caption{Dataset teddy-toy.}
-  \label{fig:teddy_toy_data}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_small_data}
-  \caption{Dataset teddy-toy.}
-  \label{fig:teddy_toy_small_data}
-  \end{center}
-\end{figure}
-
-\subsection{Funky verbose}
-
-Emplacement: \verb+__display_clusters()+ dans
-\verb+clustering.py+.
-
-\bigskip
-
-La fonction d'affichage est simple et la sortie similaire à celle du
-sujet du TP (\autoref{fig:teddy_toy_small_data_01} et
-\autoref{fig:teddy_toy_data_01}).
-
-\bigskip
-
-Sur le dataset teddy-toy (grille donnée en exemple dans le sujet), on
-observe que les centres tendent à se retrouver entre deux clusters, ou
-deux par cluster (\autoref{fig:teddy_toy_data_01}).  \'Etant donné la
-sélection naïve (aléatoire) des centres initiaux, dont certains sont
-proches les uns des autres, c'est un résultat attendu
-(\autoref{fig:teddy_toy_data_02}).  Le dataset teddy-toy-small, plus
-simple, n'a pas ce problème.
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_small_data_0_clustering_K-MEANS(4)_End}
-  \caption{K-MEANS clustering sur le dataset teddy-toy-small.}
-  \label{fig:teddy_toy_small_data_01}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_K-MEANS(16)_End}
-  \caption{K-MEANS clustering sur le dataset teddy-toy.}
-  \label{fig:teddy_toy_data_01}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_K-MEANS(16)_Start}
-  \caption{K-MEANS clustering sur le dataset teddy-toy, centres initiaux.}
-  \label{fig:teddy_toy_data_02}
-  \end{center}
-\end{figure}
-
-\cleardoublepage
-
-\subsection{K-MEANS++}
-
-Emplacement: \verb-choose_std()- et \verb+class KMEANSPP+ dans \verb+k_means_pp.py+.
-
-\bigskip
-
-La différence entre K-MEANS et K-MEANS++ est uniquement dans le choix
-des centres initiaux.  Une meilleure répartition des centres dans les
-données est susceptible de donner des meilleurs résultats de
-clustering.
-
-\bigskip
-
-L'implémentation suit la formule donnée dans le cours, et donne des
-centres initiaux bien mieux répartis, à faible coût
-(\autoref{fig:teddy_toy_data_03}).
-
-\bigskip
-
-Un test sur 10 itération montre qu'en effet, le clustering est bien
-meilleur avec K-MEANS++ qu'avec K-MEANS
-(\autoref{fig:teddy_toy_data_04}).
-Le nombre d'itérations plus faible pour K-MEANS++ peut également
-induire un gain de vitesse d'exécution
-(\autoref{fig:teddy_toy_data_05}).  Répété 100 fois, le test donne
-les mêmes résultats.
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_K-MEANSPP(16)_Start}
-  \caption{K-MEANSPP clustering sur le dataset teddy-toy, centres initiaux.}
-  \label{fig:teddy_toy_data_03}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_sumdst_10}
-  \caption{Somme des distances intra-cluster pour le dataset teddy-toy.}
-  \label{fig:teddy_toy_data_04}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_sumit_10}
-  \caption{Nombre d'itérations pour le dataset teddy-toy.}
-  \label{fig:teddy_toy_data_05}
-  \end{center}
-\end{figure}
-
-\subsection{Bonus}
-
-Emplacement: \verb-choose_max()- et \verb+class KMEANSPP+ dans \verb+k_means_pp.py+.
-
-\bigskip
-
-Une méthode de sélection des centres alternative consiste à maximiser
-la distance entre les centres initiaux au lieux de les répartir selon
-une loi de probabilité, mais cette méthode pourrait être très sensible au bruit.
-
-\bigskip
-
-Le positionnement des centre initiaux semble mieux qu'avec K-MEANS,
-mais moins bon qu'avec K-MEANS++ classique (\autoref{fig:teddy_toy_data_06}).
-Les résultats finaux sont similaires à ceux de K-MEANS++, bien que
-légèrement moins bons (\autoref{fig:teddy_toy_data_04} et
-\autoref{fig:teddy_toy_data_05}).
-
-\bigskip
-
-On peut noter que d'autres indicateurs de performance que la somme des
-distances intra-clusters peuvent être représentatifs pour
-comparer les algorithmes de clustering.  Un indicateur alternatif (la
-somme de toutes les distances intra-cluster mises au carré) a été
-utilisé, mais ne révèle rien de plus (\autoref{fig:teddy_toy_data_07}).
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_K-MEANSPP(16)_(max_distance)_Start}
-  \caption{K-MEANSPP (max distance) clustering sur le dataset teddy-toy, centres initiaux.}
-  \label{fig:teddy_toy_data_06}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../clustering/teddy_toy_data_0_clustering_sumsdst_10}
-  \caption{Somme des distances intra-cluster au carré pour le dataset teddy-toy.}
-  \label{fig:teddy_toy_data_07}
-  \end{center}
-\end{figure}
-
-\cleardoublepage
-
-\section{GMM}
-
-\verb+cd classification+.
-\verb-make-.
-
-\bigskip
-
-Fichiers:
-
-\begin{itemize}
-\item{\verb-bayes_ndist.py-: Normal Distribution Bayes Classifier.}
-\item{\verb-optdigits.py-: Dataset optdigits.  Deux datasets sont
-  fournis, training et test.  Les résultats sont présentés sur le
-  dataset training, plus large.}
-\end{itemize}
-
-\bigskip
-
-\emph{Seule la méthode Normal Distribution a été implémentée, parce
-  qu'il faut vivre, aussi, à côté.}
-
-\subsection{Normal distribution}
-
-La formule pour la distribution normale a été reprise du cours.
-L'implémentation du classifieur est proche de l'implémentation du
-classifieur Bayes naïf, à ceci près que seules les valeurs moyennes et
-de la déviation standard pour chaque attribut sont stockées pendant
-l'entrainement.
-
-\bigskip
-
-Ces valeurs permettent d'estimer la probabilité
-d'avoir la valeur de l'attribut considéré pour chaque classe.
-Les probabilités sont multipliées entre elles par classe, puis
-par la probabilité d'apparition de la classe.  La classe la plus
-probable pour le point considéré est alors retournée.
-
-\bigskip
-
-Cette méthode est efficace sur des données continues, mais elle est
-légèrement en dessous de KNN sur les datasets considérés
-(\autoref{fig:pdf_iris} et \autoref{fig:pdf_optd}).
-On peut noter que le classifieur Bayes naïf a un taux
-de reconnaissance relativement élevé étant donné que les valeurs de
-chaque attribut ne sont pas toutes distinctes.  Sur une faible
-portion du dataset optdigits, le Bayes naïf est en revanche très
-mauvais, alors que les deux autres sont plutôt bons
-(\autoref{fig:pdf_optd_200}).
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../classification/iris_data_pdf_0_kfcrossval}
-  \caption{Comparaison de classifieurs sur le dataset iris.}
-  \label{fig:pdf_iris}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../classification/optdigits_data_tra_pdf_0_kfcrossval}
-  \caption{Comparaison de classifieurs sur le dataset optdigits
-    (training).}
-  \label{fig:pdf_optd}
-  \end{center}
-\end{figure}
-
-\begin{figure}[ht]
-  \begin{center}
-  \includegraphics[width=120mm]{../classification/optdigits_data_tra_pdf_200_kfcrossval}
-  \caption{Comparaison de classifieurs sur une partie du dataset optdigits
-    (training).}
-  \label{fig:pdf_optd_200}
-  \end{center}
-\end{figure}
-
-
+FIXME: Benchmark plusieurs classifieurs selon le dataset (kfcv).
+Images + conclusion.
 
 \end{document}

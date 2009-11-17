@@ -178,20 +178,38 @@ def __work():
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_2_class_discrete", plabel)
+#    test_kfcv_roc(in_data, labels, names, cls, "_2_class_discrete", plabel)
 
     cls = [id3.ID3(0, id3.gain),
            id3.ID3(0, id3.gainratio),
            id3.ID3(0, id3.gini),
-           knn.KNN(5, cache=knn.cache_5),
-           bayes_ndist.BAYES_NDIST(),
-           bayes.BAYES()]
+           knn.KNN(5, cache=knn.cache_5)]
     names = ["ID3 Gain",
              "ID3 Gain Ratio",
              "ID3 Gini",
-             "KNN(5)\nNaive",
-             "Bayes\nNormal distribution",
-             "Naive\nBayes"]
+             "KNN(5)\nNaive"]
+
+    in_data = [data,
+               data,
+               data,
+               data]
+
+    roc_results = []
+
+#    test_kfcv_roc(in_data, labels, names, cls, "_id3", plabel)
+
+    cls = [id3.ID3(0, id3.gain),
+           id3.ID3(0, id3.gainratio),
+           id3.ID3(0, id3.gini),
+           id3.ID3(0, id3.gainratio, 1),
+           id3.ID3(0, id3.gini, 1),
+           knn.KNN(5, cache=knn.cache_5)]
+    names = ["ID3 Gain",
+             "ID3 Gain Ratio",
+             "ID3 Gini",
+             "ID3 Gain Ratio + REP",
+             "ID3 Gini + REP",
+             "KNN(5)\nNaive"]
 
     in_data = [data,
                data,
@@ -202,31 +220,25 @@ def __work():
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_id3", plabel)
+#    test_kfcv_roc(in_data, labels, names, cls, "_id3_prune", plabel)
 
     cls = [id3.ID3(0, id3.gain),
            id3.ID3(0, id3.gain),
-           id3.ID3(0, id3.gainratio),
-           id3.ID3(0, id3.gainratio),
-           id3.ID3(0, id3.gini),
-           id3.ID3(0, id3.gini)]
-    names = ["ID3 Gain\nEWD",
+           knn.KNN(5),
+           knn.KNN(5)]
+    names = ["ID3 Gain",
              "ID3 Gain\nEFD",
-             "ID3 Gain ratio\nEWD",
-             "ID3 Gain ratio\nEFD",
-             "ID3 Gini\nEWD",
-             "ID3 Gini\nEFD"]
+             "KNN(5)\nNaive",
+             "KNN(5)\nNaive\nEFD"]
 
-    in_data = [discretize.Discretize().ewd(data),
+    in_data = [data,
                discretize.Discretize().efd(data),
-               discretize.Discretize().ewd(data),
-               discretize.Discretize().efd(data),
-               discretize.Discretize().ewd(data),
+               data,
                discretize.Discretize().efd(data)]
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete", plabel)
+    test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete_knn", plabel)
 
     cls = [knn.KNN(1, cache=knn.cache_100),
            knn.KNN(3, cache=knn.cache_100),
@@ -244,7 +256,7 @@ def __work():
                data,
                data]
 
-    test_kfcv_roc(in_data, labels, names, cls, "_knns", plabel)
+#    test_kfcv_roc(in_data, labels, names, cls, "_knns", plabel)
 
 
     cls = [knn.KNN(5, cache=knn.cache_5),
@@ -265,7 +277,7 @@ def __work():
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_cnt", plabel)
+#    test_kfcv_roc(in_data, labels, names, cls, "_cnt", plabel)
 
     cls = [knn.KNN(5, cache=knn.cache_5),
            bayes_ndist.BAYES_NDIST(),
@@ -279,7 +291,7 @@ def __work():
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_pdf", plabel)
+#     test_kfcv_roc(in_data, labels, names, cls, "_pdf", plabel)
 
     print "All tests completed"
 

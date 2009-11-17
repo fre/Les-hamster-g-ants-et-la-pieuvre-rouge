@@ -16,13 +16,13 @@ classification: images donut mushroom iris optdigits tennis krkopt glass donut_s
 	./glass.sh
 
 donut:
-	python donut.py donut_data 2000 10.0 --noshow
+	python donut.py donut_data 2000 0.1 --noshow
 
 donut_simple:
 	python donut.py donut_simple_data 1000 0.0 --noshow
 
 linear:
-	python linear.py linear_data 2000 10.0 --noshow
+	python linear.py linear_data 2000 0.1 --noshow
 
 linear_simple:
 	python linear.py linear_simple_data 1000 0.0 --noshow

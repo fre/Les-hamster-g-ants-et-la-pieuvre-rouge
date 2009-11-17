@@ -10,7 +10,7 @@ clean:
 	make -C doc clean
 
 dist:
-	git archive --format=tar --prefix=d-hall_f-mlea2-tp1/ HEAD | gzip > d-hall_f-mlea2-tp1.tar.gz
+	git archive --format=tar --prefix=d-hall_f-mlea2-tp1/ HEAD | gzip > d-hall_f-mlea2-tp.tar.gz
 
 report:
 	make -C doc

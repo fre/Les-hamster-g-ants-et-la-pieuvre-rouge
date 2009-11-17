@@ -130,7 +130,7 @@ class SVM(object):
         for i in xrange(0, n):
             for j in xrange(i, n):
                 # (see Annexe page 3 formula 8)
-                val = l[i] * l[j] * self.kernel(data[i], data[j], self.p_value)
+                val = l[i] * l[j] * norm_k(data[i], data[j], self.p_value)
                 P[i, j] = val
                 P[j, i] = val
         return P

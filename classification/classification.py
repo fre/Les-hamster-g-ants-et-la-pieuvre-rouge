@@ -160,53 +160,61 @@ def __work():
         labels = labels[0:data_size]
 
     cls = [id3.ID3(0, id3.gain),
-           svm.SVM(),
            knn.KNN(5, cache=knn.cache_5),
-           bayes_ndist.BAYES_NDIST(),
            bayes.BAYES()]
     names = ["ID3 Gain",
-             "SVM",
              "KNN(5)\nNaive",
-             "Bayes\nNormal distribution",
              "Naive\nBayes"]
 
     in_data = [data,
                data,
-               data,
+               data]
+
+    roc_results = []
+
+    test_kfcv_roc(in_data, labels, names, cls, "_summary_discrete", plabel)
+
+    cls = [id3.ID3(0, id3.gain),
+           knn.KNN(5, cache=knn.cache_5),
+           bayes_ndist.BAYES_NDIST()]
+    names = ["ID3\nGain\nEFD",
+             "KNN(5)\nNaive",
+             "Bayes\nNormal distribution"]
+
+    in_data = [discretize.Discretize().efd(data),
                data,
                data]
 
     roc_results = []
 
-#    test_kfcv_roc(in_data, labels, names, cls, "_2_class_discrete", plabel)
+    test_kfcv_roc(in_data, labels, names, cls, "_summary_continuous", plabel)
 
 
     cls = [svm.SVM(svm.linear_k),
+           svm.SVM(svm.rbf_k, 1),
+           svm.SVM(svm.rbf_k, 10),
            svm.SVM(svm.rbf_k, 1, True, 20.),
            svm.SVM(svm.rbf_k, 10, True, 20.),
-           svm.SVM(svm.rbf_k, 100, True, 20.),
-           svm.SVM(svm.polynomial_k, 8, True, 20.),
-           svm.SVM(svm.polynomial_k, 32, True, 20.),
+           knn.KNN(5, cache=knn.cache_5),
            ]
 
     names = ["SVM \nLinar Kernel",
-             "SVM \nRbf \ng=1",
-             "SVM \nRbf \ng=10",
-             "SVM \nRbf \ng=100",
-             "SVM \nPolynomial \np=8",
-             "SVM \nPolynomial \np=32"]
+             "SVM \nRBF \ng=1",
+             "SVM \nRBF \ng=10",
+             "Soft SVM \nRBF \ng=1",
+             "Soft SVM \nRBF \ng=10",
+             "KNN(5)\nNaive"]
 
     in_data = [data,
                data,
                data,
                data,
                data,
-               data,
                data]
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_SVM_linear_noise_data", plabel)
+#    test_kfcv_roc(in_data, labels, names, cls, "_svm", plabel)
 
     cls = [id3.ID3(0, id3.gain),
            id3.ID3(0, id3.gainratio),
@@ -227,19 +235,22 @@ def __work():
 #    test_kfcv_roc(in_data, labels, names, cls, "_id3", plabel)
 
     cls = [id3.ID3(0, id3.gain),
+           id3.ID3(0, id3.gain, 1),
            id3.ID3(0, id3.gainratio),
-           id3.ID3(0, id3.gini),
            id3.ID3(0, id3.gainratio, 1),
+           id3.ID3(0, id3.gini),
            id3.ID3(0, id3.gini, 1),
            knn.KNN(5, cache=knn.cache_5)]
-    names = ["ID3 Gain",
-             "ID3 Gain Ratio",
-             "ID3 Gini",
-             "ID3 Gain Ratio + REP",
-             "ID3 Gini + REP",
+    names = ["ID3\nGain",
+             "ID3\nGain\nREP",
+             "ID3\nGainRatio",
+             "ID3\nGainRatio\nREP",
+             "ID3\nGini",
+             "ID3\nGini\nREP",
              "KNN(5)\nNaive"]
 
     in_data = [data,
+               data,
                data,
                data,
                data,
@@ -249,6 +260,33 @@ def __work():
     roc_results = []
 
 #    test_kfcv_roc(in_data, labels, names, cls, "_id3_prune", plabel)
+
+    cls = [id3.ID3(0, id3.gain),
+           id3.ID3(0, id3.gain, 1),
+           id3.ID3(0, id3.gainratio),
+           id3.ID3(0, id3.gainratio, 1),
+           id3.ID3(0, id3.gini),
+           id3.ID3(0, id3.gini, 1),
+           knn.KNN(5, cache=knn.cache_5)]
+    names = ["ID3 (EFD)\nGain\n",
+             "ID3 (EFD)\nGain\nREP",
+             "ID3 (EFD)\nGainRatio",
+             "ID3 (EFD)\nGainRatio\nREP",
+             "ID3 (EFD)\nGini",
+             "ID3 (EFD)\nGini\nREP",
+             "KNN(5) (EFD)\nNaive"]
+
+    in_data = [discretize.Discretize().efd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().efd(data),
+               discretize.Discretize().efd(data)]
+
+    roc_results = []
+
+#    test_kfcv_roc(in_data, labels, names, cls, "_id3_prune_discrete", plabel)
 
     cls = [id3.ID3(0, id3.gain),
            id3.ID3(0, id3.gain),
@@ -266,7 +304,7 @@ def __work():
 
     roc_results = []
 
-#     test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete_knn", plabel)
+#    test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete_knn", plabel)
 
     cls = [knn.KNN(1, cache=knn.cache_100),
            knn.KNN(3, cache=knn.cache_100),

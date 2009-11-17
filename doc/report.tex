@@ -75,7 +75,10 @@ Datasets:
 \begin{verbatim}
 donut
 donut_simple
+xor
+xor_simple
 linear
+linear_simple
 tennis
 glass
 iris
@@ -398,6 +401,8 @@ donut
 donut_simple
 linear
 linear_simple
+xor
+xor_simple
 tennis
 glass
 iris
@@ -429,17 +434,155 @@ Fichiers:
 
 \bigskip
 
-\subsection{2D tiny toy}
-FIXME: Explications (dataset linear) + Images + kfcv
+L'implémentation est basée sur les slides de cours.  Les datasets de
+tests sont:
+
+\begin{itemize}
+\item{Linear (linéairement séparable, bruit 10\%): \autoref{fig:linear_data}.}
+\item{Linear simple (non linéairement séparable, bruit 0\%):
+  \autoref{fig:linear_simple_data}.}
+\item{Donut (non linéairement séparable, bruit 10\%):
+  \autoref{fig:donut_data}.}
+\item{Donut simple (non linéairement séparable, bruit 0\%):
+  \autoref{fig:donut_data}.}
+\item{Xor (non linéairement séparable, bruit 10\%): \autoref{fig:xor_data}.}
+\item{Xor simple (non linéairement séparable, bruit 0\%):
+  \autoref{fig:xor_data}.}
+\end{itemize}
+
+\subsection{Datasets}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=100mm]{linear_data}
+  \caption{Dataset linear.}
+  \label{fig:linear_data}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=100mm]{linear_simple_data}
+  \caption{Dataset linear (simple).}
+  \label{fig:linear_simple_data}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=100mm]{donut_data}
+  \caption{Dataset donut.}
+  \label{fig:donut_data}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=100mm]{donut_simple_data}
+  \caption{Dataset donut (simple).}
+  \label{fig:donut_simple_data}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=100mm]{xor_data}
+  \caption{Dataset xor.}
+  \label{fig:xor_data}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=100mm]{xor_simple_data}
+  \caption{Dataset xor (simple).}
+  \label{fig:xor_simple_data}
+  \end{center}
+\end{figure}
+
+\cleardoublepage
 
 \subsection{Kernels}
 
-FIXME: Explications + plein d'images de fonction de décision + kfcv
+Le SVM linéaire ne fonctionne que sur les datasets linéairement
+séparables.  Afin de pouvoir gérer les datasets non linéairement
+séparables, trois types de kernels ont été implémentés (linéaire,
+polynomial et RBF).  Pour gérer les données bruitées, une version soft
+margin du svm a été implémentée.
 
-\subsection{Noise}
 
-Le SVM implémenté ne gère pas le bruit.
-FIXME: Afficher une fonction de décision, kernel RBF qui va bien.
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_data_p32_s80}
+  \caption{Fonction de d\'ecision d'un donut avec kernel polynomial p=32, s=80}
+  \label{fig:donut_data_p32_s80}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_data_g50_s25}
+  \caption{Fonction de d\'ecision d'un donut avec kernel rbf gamma=50, s=25}
+  \label{fig:donut_data_g50_s25}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_data_g2000_s17}
+  \caption{Fonction de d\'ecision d'un donut avec kernel rbf gamma=2000, s=17}
+  \label{fig:donut_data_g2000_s17}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{xor_simple_data_g10_s34}
+  \caption{Fonction de d\'ecision d'un xor avec kernel rbf gamma=1, s=34}
+  \label{fig:xor_simple_data_g10_s34}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{xor_simple_data_SVM_xor_data_300_kfcrossval}
+  \caption{Kfold pour un dataset Xor non buit\'e}
+  \label{fig:xor_simple_data_SVM_xor_data_300_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{linear_simple_data_SVM_linear_data_300_kfcrossval}
+  \caption{Kfold pour un dataset lineaire non buit\'e}
+  \label{fig:linear_simple_data_SVM_linear_data_300_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{linear_simple_data_SVM_linear_noise_data_300_kfcrossval}
+  \caption{Kfold pour un dataset lineaire buit\'e}
+  \label{fig:linear_simple_data_SVM_linear_noise_data_300_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_simple_data_SVM_donut_data_300_kfcrossval}
+  \caption{Kfold pour un dataset donut non buit\'e}
+  \label{fig:donut_simple_data_SVM_donut_data_300_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_simple_data_SVM_donut_data_300_kfcrossval}
+  \caption{Kfold pour un dataset donut non buit\'e}
+  \label{fig:donut_simple_data_SVM_donut_data_300_kfcrossval}
+  \end{center}
+\end{figure}
+
 
 \subsection{Multiclass Management}
 
@@ -449,9 +592,55 @@ Ce point n'a pas été implémenté.
 
 Ce point n'a pas été implémenté.
 
+\cleardoublepage
+
 \section{Final benchmarking}
 
-FIXME: Benchmark plusieurs classifieurs selon le dataset (kfcv).
-Images + conclusion.
+Le benchmarking final a été réalisé sur deux types de classifieurs et
+datasets:
+\begin{itemize}
+\item{Les classifieurs et datasets à données continues
+  (\autoref{fig:donut_data_summary_continuous_500_kfcrossval},
+  \autoref{fig:glass_data_summary_continuous_500_kfcrossval}).}
+\item{Les classifieurs et datasets à données discrètes
+  (\autoref{fig:mushroom_data_summary_discrete_500_kfcrossval},
+  \autoref{fig:iris_data_summary_discrete_500_kfcrossval}).}
+\end{itemize}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_data_summary_continuous_500_kfcrossval}
+  \caption{K-Fold Cross-validation (classifieurs sur données
+    continues, dataset Donut).}
+  \label{fig:donut_data_summary_continuous_500_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{glass_data_summary_continuous_500_kfcrossval}
+  \caption{K-Fold Cross-validation (classifieurs sur données
+    continues, dataset Glass).}
+  \label{fig:glass_data_summary_continuous_500_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_summary_discrete_500_kfcrossval}
+  \caption{K-Fold Cross-validation (classifieurs sur données
+    discrètes, dataset Mushroom).}
+  \label{fig:mushroom_data_summary_discrete_500_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{iris_data_summary_discrete_500_kfcrossval}
+  \caption{K-Fold Cross-validation (classifieurs sur données
+    discrètes, dataset Iris).}
+  \label{fig:iris_data_summary_discrete_500_kfcrossval}
+  \end{center}
+\end{figure}
 
 \end{document}

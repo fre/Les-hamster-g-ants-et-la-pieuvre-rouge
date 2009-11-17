@@ -5,7 +5,9 @@ quiet: all
 images:
 	mkdir images
 
-classification: images donut mushroom iris optdigits tennis krkopt glass donut_simple linear linear_simple
+datasets: images donut mushroom iris optdigits tennis krkopt glass donut_simple linear linear_simple xor xor_simple
+
+classification: datasets
 	./donut.sh
 	./linear.sh
 	./iris.sh
@@ -20,6 +22,12 @@ donut:
 
 donut_simple:
 	python donut.py donut_simple_data 1000 0.0 --noshow
+
+xor:
+	python xor.py xor_data 2000 0.1 --noshow
+
+xor_simple:
+	python xor.py xor_simple_data 1000 0.0 --noshow
 
 linear:
 	python linear.py linear_data 2000 0.1 --noshow

@@ -313,6 +313,11 @@ au rapport de la taille de l'arbre sur la taille du dataset.  Lorsque
 l'arbre est très petit par rapport au dataset (e.g. Mushroom avec Gain
 et GainRatio), l'effet de l'élagage est difficile à évaluer.
 
+En pratique, le taux de reconnaissance d'un arbre est similaire qu'il
+soit élagué ou non
+(\autoref{fig:mushroom_data_id3_prune_500_kfcrossval} et
+\autoref{fig:donut_data_id3_prune_discrete_500_kfcrossval}).
+
 \begin{figure}[ht]
   \begin{center}
   \includegraphics[width=120mm]{mushroom_data_id3_gainratio_pruned_graph}
@@ -343,12 +348,86 @@ et GainRatio), l'effet de l'élagage est difficile à évaluer.
   \label{tbl:id3_node_count}
 \end{table}
 
-FIXME: KFCV sur les arbres élagués
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{mushroom_data_id3_prune_500_kfcrossval}
+  \caption{Effet de l'élagage sur le taux de reconnaissance
+    (dataset Mushroom).}
+  \label{fig:mushroom_data_id3_prune_500_kfcrossval}
+  \end{center}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{center}
+  \includegraphics[width=120mm]{donut_data_id3_prune_discrete_500_kfcrossval}
+  \caption{Effet de l'élagage sur le taux de reconnaissance
+    (dataset Donut).}
+  \label{fig:donut_data_id3_prune_discrete_500_kfcrossval}
+  \end{center}
+\end{figure}
+
+\cleardoublepage
 
 \section{SVM}
 
-\subsection{Very tiny toy}
-FIXME: Explications + réponses
+\subsection{Notes sur l'implémentation}
+
+\bigskip
+
+Test SVM:
+\begin{verbatim}
+make <Dataset>
+python svm.py <Dataset>_data [<Kernel> <Kernel Parameter>] --test
+\end{verbatim}
+
+\bigskip
+
+Classification:
+\begin{verbatim}
+make <Dataset>
+python classification.py <Dataset>_data <Positive label> <Data Size>
+\end{verbatim}
+\emph{Note: \'Etant donné le grand nombre de tests possibles, choisir
+  les tests désirés en modifiant classification.py (fin du fichier).}
+
+\bigskip
+
+Datasets:
+\begin{verbatim}
+donut
+donut_simple
+linear
+linear_simple
+tennis
+glass
+iris
+optdigits_tes
+optdigits_tra
+krkopt
+\end{verbatim}
+
+\bigskip
+
+Kernel \& Kernel parameter:
+\begin{verbatim}
+--linear_k
+--poly_k <degré du polynome>
+--rbf_k <gamma>
+\end{verbatim}
+
+\bigskip
+
+Fichiers:
+\begin{itemize}
+\item{\verb-<Dataset>_data-: Dataset.}
+\item{\verb-<Dataset>.py-: Extraction du dataset.}
+\item{\verb-svm.py-: Implémentation du SVM.}
+\item{\verb-kfcv.py-: K-Fold Cross-Validation.}
+\item{\verb-classification.py-: Tests et génération des courbes.}
+\item{\verb-discretization.py-: Méthodes de discrétisation.}
+\end{itemize}
+
+\bigskip
 
 \subsection{2D tiny toy}
 FIXME: Explications (dataset linear) + Images + kfcv

@@ -49,13 +49,14 @@ if sys.argv[-1] == '--test':
 
 
 class SVM(object):
-    def __init__(self, kernel = rbf_k, p_value = 0.05):
+    def __init__(self, kernel = rbf_k, p_value = 0.05, soft=False, C=0.):
         self.kernel = kernel
         self.alpha = []
         self.bias = 0.
         self.weight = 0.
         self.p_value = p_value
-
+        self.soft = soft
+        self.C = C
 
     def norm_k(self, x, y, p_value):
         x = numpy.array(x)
@@ -82,7 +83,7 @@ class SVM(object):
         self.label_map = {-1.: '', 1.: ''}
         for l, v in l_map.iteritems():
             self.label_map[v] = l
-        self.alpha = self.lagrange_coeffs(data, self.labels, True, 100.)
+        self.alpha = self.lagrange_coeffs(data, self.labels, self.soft, self.C)
         self.bias = self.bias_get(data, self.labels)
 
     # Get weight vector

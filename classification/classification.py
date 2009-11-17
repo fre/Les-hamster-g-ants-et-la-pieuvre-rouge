@@ -180,6 +180,34 @@ def __work():
 
 #    test_kfcv_roc(in_data, labels, names, cls, "_2_class_discrete", plabel)
 
+
+    cls = [svm.SVM(svm.linear_k),
+           svm.SVM(svm.rbf_k, 1, True, 20.),
+           svm.SVM(svm.rbf_k, 10, True, 20.),
+           svm.SVM(svm.rbf_k, 100, True, 20.),
+           svm.SVM(svm.polynomial_k, 8, True, 20.),
+           svm.SVM(svm.polynomial_k, 32, True, 20.),
+           ]
+
+    names = ["SVM \nLinar Kernel",
+             "SVM \nRbf \ng=1",
+             "SVM \nRbf \ng=10",
+             "SVM \nRbf \ng=100",
+             "SVM \nPolynomial \np=8",
+             "SVM \nPolynomial \np=32"]
+
+    in_data = [data,
+               data,
+               data,
+               data,
+               data,
+               data,
+               data]
+
+    roc_results = []
+
+    test_kfcv_roc(in_data, labels, names, cls, "_SVM_linear_noise_data", plabel)
+
     cls = [id3.ID3(0, id3.gain),
            id3.ID3(0, id3.gainratio),
            id3.ID3(0, id3.gini),
@@ -238,7 +266,7 @@ def __work():
 
     roc_results = []
 
-    test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete_knn", plabel)
+#     test_kfcv_roc(in_data, labels, names, cls, "_id3_discrete_knn", plabel)
 
     cls = [knn.KNN(1, cache=knn.cache_100),
            knn.KNN(3, cache=knn.cache_100),

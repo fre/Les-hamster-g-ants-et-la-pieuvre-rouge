@@ -96,8 +96,8 @@ class SVM(object):
         for d in data:
             w = 0.
             for i in xrange(0, len(self.alpha)):
-              w += self.alpha[i][0] * self.labels[self.alpha[i][1]] \
-                    * self.kernel(self.data[self.alpha[i][1]], d, self.p_value)
+                w += self.alpha[i][0] * self.labels[self.alpha[i][1]] \
+                    * norm_k(self.data[self.alpha[i][1]], d, self.p_value) + self.bias
             deci.append(w)
         return deci
 
@@ -213,7 +213,6 @@ def __test():
 
     svm = SVM(kernel, p_value);
     svm.train(data, labels)
-#     lab = svm.process(data)
 
     svm.print_2Ddecision([-10, 10, -10, 10])
 if test:

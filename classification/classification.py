@@ -66,7 +66,7 @@ def __kfcrossval(data, labels, names, knns, suffix, results):
     fig = pylab.figure()
     ax = fig.add_subplot(111)
     rects1 = ax.bar(ind, avg, width,
-                    color=['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'][0:len(ind)],
+                    color=['b', 'g', 'r', 'c', 'm', 'y', 'w', 'k'][0:len(ind)],
                     yerr=dev, ecolor='k')
 
     ax.set_ylabel('Classification rate')

@@ -256,7 +256,7 @@ def __work():
                data,
                data]
 
-#    test_kfcv_roc(in_data, labels, names, cls, "_knns", plabel)
+#     test_kfcv_roc(in_data, labels, names, cls, "_knns", plabel)
 
 
     cls = [knn.KNN(5, cache=knn.cache_5),
@@ -277,7 +277,7 @@ def __work():
 
     roc_results = []
 
-#    test_kfcv_roc(in_data, labels, names, cls, "_cnt", plabel)
+#     test_kfcv_roc(in_data, labels, names, cls, "_cnt", plabel)
 
     cls = [knn.KNN(5, cache=knn.cache_5),
            bayes_ndist.BAYES_NDIST(),

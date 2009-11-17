@@ -16,7 +16,7 @@ r2 = 8.5    # Outer radius
 max_xy = 10 # Max spread
 
 samples = 1000 # Number of samples
-noise = 0.1    # Noise factor
+noise = 0.0    # Noise factor
 
 noshow = 0  # Do not show the pylab window
 

@@ -19,7 +19,7 @@ if len(sys.argv) >= 2:
     filename = sys.argv[1]
 
 def linear_k(x, y, p_value):
-    val = numpy.sum(numpy.dot(x,y), dtype=float) + 1
+    val = numpy.sum(numpy.dot(x,y), dtype=float)
     return val
 
 def polynomial_k(x, y, p_value):
@@ -29,12 +29,6 @@ def polynomial_k(x, y, p_value):
 def rbf_k(x, y, p_value):
     m = x - y
     val = numpy.exp(-1 * numpy.dot(m, m) / float(p_value))
-    return val
-
-def norm_k(x, y):
-    x = numpy.array(x)
-    y = numpy.array(y)
-    val = kernel(x, y) / numpy.sqrt(kernel(x, x) * kernel(y, y))
     return val
 
 test = 0
@@ -62,6 +56,14 @@ class SVM(object):
         self.weight = 0.
         self.p_value = p_value
 
+
+    def norm_k(self, x, y, p_value):
+        x = numpy.array(x)
+        y = numpy.array(y)
+        val = self.kernel(x, y, p_value) / numpy.sqrt(self.kernel(x, x, p_value) * self.kernel(y, y, p_value))
+        return val
+
+
     def train(self, data, labels):
         self.data = data
         l_map = {}
@@ -80,7 +82,7 @@ class SVM(object):
         self.label_map = {-1.: '', 1.: ''}
         for l, v in l_map.iteritems():
             self.label_map[v] = l
-        self.alpha = self.lagrange_coeffs(data, self.labels)
+        self.alpha = self.lagrange_coeffs(data, self.labels, True, 100.)
         self.bias = self.bias_get(data, self.labels)
 
     # Get weight vector
@@ -97,7 +99,7 @@ class SVM(object):
             w = 0.
             for i in xrange(0, len(self.alpha)):
                 w += self.alpha[i][0] * self.labels[self.alpha[i][1]] \
-                    * norm_k(self.data[self.alpha[i][1]], d, self.p_value) + self.bias
+                    * self.norm_k(self.data[self.alpha[i][1]], d, self.p_value)
             deci.append(w)
         return deci
 
@@ -119,7 +121,7 @@ class SVM(object):
 
         b = 0.
         for i in xrange(0, len(self.alpha)):
-            b += (labels[self.alpha[i][1]] - norm_k(self.weight, data[self.alpha[i][1]]))
+            b += (labels[self.alpha[i][1]] - self.norm_k(self.weight, data[self.alpha[i][1]], self.p_value))
 
         return b / len(self.alpha)
 
@@ -130,18 +132,25 @@ class SVM(object):
         for i in xrange(0, n):
             for j in xrange(i, n):
                 # (see Annexe page 3 formula 8)
-                val = l[i] * l[j] * norm_k(data[i], data[j], self.p_value)
+                val = l[i] * l[j] * self.norm_k(data[i], data[j], self.p_value)
                 P[i, j] = val
                 P[j, i] = val
         return P
 
     # get lagrange coefficient (alpha vector)
     # use annexe to understand
-    def lagrange_coeffs(self, data, labels):
+    def lagrange_coeffs(self, data, labels, soft=False, C=20.):
         n = len(labels)
         q = numpy.dot(numpy.ones(n), -1)
-        h = numpy.zeros(n)
-        G = numpy.dot(numpy.eye(n), -1)
+        if (soft):
+            h = numpy.zeros(2 * n)
+            G1 = numpy.dot(numpy.eye(n), -1)
+            G2 = numpy.dot(numpy.eye(n), -C)
+            G = numpy.concatenate((G1, G2), 0)
+        else:
+            h = numpy.zeros(n)
+            G = numpy.dot(numpy.eye(n), -1)
+
         P = self.__get_quad(data, n, labels)
         # Constraint value for Sum(alpha_i*label_i)=0
         b = numpy.zeros(1)
@@ -161,7 +170,7 @@ class SVM(object):
             grid = [];
             for i in xrange (-100., 100., step):
                 for j in xrange (-100., 100., step):
-                    grid.append([i/10., j/10.]);
+                    grid.append([j/10., i/10.]);
             return grid
 
         step = .5
